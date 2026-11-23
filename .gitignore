@@ -58,3 +58,6 @@ deploy/certs/*
 
 # Synthetic historical migration fixture used by backend/tests (not a runtime database)
 !backend/tests/fixtures/phase71_release.sqlite3
+
+# generated static copy for GitHub Pages (published to the gh-pages branch, not main)
+site/

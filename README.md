@@ -19,6 +19,8 @@ open /portal/  ->  enter register number  ->  all matching exams  ->  hall + sea
 ## Quick start (Linux / Docker)
 `docs/DEPLOYMENT.md` - `docker compose -f docker-compose.local.yml up --build -d`, or a plain Python 3.12 venv.
 
+**Free permanent link:** `publish_site.bat` publishes a static copy to GitHub Pages - see docs/GITHUB_PAGES.md.
+
 ## What is automatic
 Discovery (HTML, embedded PDFs, WordPress media/search, sitemaps on `vsbec.edu.in` and `coe.vsbec.edu.in`) -> download with
 validation and SHA-256 -> hall/seat extraction (text, tables, OCR fallback) -> matching and conflict detection -> searchable index

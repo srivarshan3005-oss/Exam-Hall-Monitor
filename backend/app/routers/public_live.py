@@ -78,6 +78,35 @@ def _src(db: Session, a: dm.LiveAllotment, which: str) -> dict | None:
             "downloaded_at": iso(v.downloaded_at)}
 
 
+REASON_TEXT = {
+    "seat_from_text_order": "The seat number was guessed from the order of text on the page, not from the seat box, so it may be wrong.",
+    "ocr_text": "This page is a scanned image, so the numbers were read by OCR and may contain mistakes.",
+    "ocr_ambiguous": "The scanned text was unclear, so the number could not be read with certainty.",
+    "seat_label_missing": "The seat number label could not be found next to this register number.",
+    "seat_label_ambiguous": "More than one seat number was found near this register number.",
+    "seat_cell_ambiguous": "The seat box for this register number could not be told apart from its neighbours.",
+    "seat_missing": "No seat number was found for this register number.",
+    "hall_missing": "The hall name could not be read on the page.",
+    "hall_check_failed": "The hall check did not match the page totals.",
+    "group_check_failed": "The student count on the page did not match the list.",
+    "department_total_mismatch": "The department total on the page did not match the list.",
+    "hall_capacity_exceeded": "More students than seats were found for this hall.",
+    "hall_label_variant": "The hall name is spelt differently in two places.",
+    "subject_missing": "The subject code could not be read.",
+    "session_unknown": "The exam session (FN/AN) could not be read.",
+    "source_not_official": "The file did not come from an official college address.",
+    "provenance_mismatch": "The file does not match the official source record.",
+}
+
+
+def _reasons(flags_json: str | None) -> list[str]:
+    try:
+        flags = json.loads(flags_json or "[]")
+    except ValueError:
+        return []
+    return [REASON_TEXT[f] for f in flags if f in REASON_TEXT]
+
+
 def serialize(db: Session, a: dm.LiveAllotment) -> dict:
     loc = locations.public_location(db, a.hall) if a.hall else {}
     t = settings.session_time_map.get(a.session)
@@ -87,7 +116,7 @@ def serialize(db: Session, a: dm.LiveAllotment) -> dict:
             "subject_code": a.subject_code or None, "subject_name": a.subject_name, "programme": a.programme, "department": a.department,
             "hall": a.hall, "seat": a.seat, "status": a.status, "status_label": STATUS_LABELS[a.status],
             "seat_note": ("Seat not published or not verified yet." if a.status == "HALL_ONLY" else None),
-            "unverified": unv, "notes": _human_notes(a.notes), "revision": a.revision, "revised": "revised_allotment" in json.loads(a.flags or "[]"),
+            "unverified": unv, "review_reasons": _reasons(a.flags) if a.status == "MANUAL_REVIEW" else [], "notes": _human_notes(a.notes), "revision": a.revision, "revised": "revised_allotment" in json.loads(a.flags or "[]"),
             "first_seen_at": iso(a.first_seen_at), "last_verified_at": iso(a.last_verified_at),
             "sources": [s for s in (_src(db, a, "hall"), _src(db, a, "seat")) if s],
             "location": loc or None, "location_message": None if loc else locations.NOT_VERIFIED_TEXT if a.hall else None}

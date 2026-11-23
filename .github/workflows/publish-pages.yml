@@ -1,0 +1,118 @@
+# FULLY AUTOMATIC website - no laptop, no start.bat.
+# Every 30 minutes GitHub's own servers: read the official VSB notice page -> download new PDFs -> parse them ->
+# build the static student portal -> publish it to GitHub Pages.
+#
+# One-time setting: repository Settings -> Pages -> Build and deployment -> Source = "GitHub Actions".
+# Link: https://<user>.github.io/<repository>/
+#
+# Notes
+#  * GitHub's cron is best effort: runs can be late (usually minutes). Press "Run workflow" in the Actions tab to publish immediately.
+#  * If the official site cannot be read, or no allotment was found, NOTHING is deployed: the last good website stays online.
+#  * State (downloaded PDFs + database) is kept with actions/cache so later runs only process new files.
+#  * GitHub switches scheduled workflows off after 60 days without any repository activity; push a small change or press
+#    "Enable workflow" if that happens.
+name: Publish student portal (automatic)
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        description: "Re-parse every stored PDF and rebuild the index"
+        type: boolean
+        default: false
+
+concurrency:
+  group: pages-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    env:
+      ENVIRONMENT: production
+      # Not a login secret: this site has no sign-in. A repository secret SECRET_KEY is used if you set one.
+      SECRET_KEY: ${{ secrets.SECRET_KEY || format('pages-build-key-{0}-{1}-not-used-for-login', github.repository, github.repository_id) }}
+      DATABASE_URL: sqlite:///${{ github.workspace }}/.monitor-state/exam_monitor.db
+      DOCUMENT_STORAGE_DIR: ${{ github.workspace }}/.monitor-state/documents
+      LOG_DIR: ${{ github.workspace }}/.monitor-state/logs
+      SCHEDULER_ENABLED: "false"
+      VSB_AUTO_DISCOVER_ENABLED: "true"
+      SESSION_TIMES: "FN=09:30-12:30,AN=13:30-16:30"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install Tesseract (OCR fallback for scanned PDFs)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tesseract-ocr
+
+      - name: Restore saved state
+        uses: actions/cache/restore@v4
+        with:
+          path: .monitor-state
+          key: vsb-state-${{ github.run_id }}
+          restore-keys: vsb-state-
+
+      - run: pip install -r backend/requirements.txt
+
+      - name: Prepare database
+        working-directory: backend
+        run: |
+          mkdir -p ../.monitor-state/documents ../.monitor-state/logs
+          python -m app.cli migrate
+
+      - name: Scan the official VSB notice page and parse new PDFs
+        working-directory: backend
+        continue-on-error: true
+        run: python -m app.cli run-cycle ${{ inputs.rebuild && '--rebuild' || '' }} | tee ../.monitor-state/last-cycle.json
+
+      - name: Save state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .monitor-state
+          key: vsb-state-${{ github.run_id }}
+
+      - name: Build the static website
+        working-directory: backend
+        run: python build_static_site.py "${{ github.workspace }}/site"
+
+      - name: Check the site is worth publishing
+        id: check
+        run: |
+          n=$(ls site/data/lookup 2>/dev/null | wc -l)
+          echo "register numbers in site: $n"
+          if [ "$n" -gt 0 ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; else echo "ready=false" >> "$GITHUB_OUTPUT"; echo "::warning::No allotments found (official site unreachable or nothing published). The previous website stays online."; fi
+
+      - name: Upload site
+        if: steps.check.outputs.ready == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.ready == 'true'
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

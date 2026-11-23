@@ -17,7 +17,25 @@
     var d = new Date(iso); if (isNaN(d)) return iso;
     return d.toLocaleString(undefined, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
   }
+  var STATIC = !!window.STATIC_SITE;     /* GitHub Pages copy: data comes from data/*.json instead of the server API */
+  function istToday() { try { return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
+  function staticApi(path, signal) {
+    var m = path.match(/^\/api\/public\/lookup\/(.+)$/), url;
+    if (path === "/api/public/status") url = "data/status.json";
+    else if (path === "/api/public/published") url = "data/published.json";
+    else if (m) url = "data/lookup/" + m[1].toUpperCase() + ".json";
+    else return Promise.resolve({});                       /* version polling etc.: not needed for a static copy */
+    return fetch(url + "?t=" + Math.floor(Date.now() / 60000), { signal: signal }).then(function (r) {
+      if (r.status === 404 && m) {
+        return { version: null, register_number: decodeURIComponent(m[1]).toUpperCase(), today: istToday(), records: [], warnings: [], status: "no_match",
+                 message: "No allotment was found for this register number in the documents published so far. It may not have been published yet; check again later or ask the Controller of Examinations." };
+      }
+      if (!r.ok) { var err = new Error("HTTP " + r.status); err.status = r.status; throw err; }
+      return r.json().then(function (j) { if (m || path === "/api/public/published") j.today = istToday(); return j; });
+    });
+  }
   function api(path, signal) {
+    if (STATIC) return staticApi(path, signal);
     return fetch(path, { headers: { Accept: "application/json" }, signal: signal }).then(function (r) {
       return r.text().then(function (t) {
         var j = null; try { j = JSON.parse(t); } catch (e) { /* not JSON */ }
@@ -30,7 +48,7 @@
   /* ---------- status bar & published sessions ---------- */
   function loadStatus() {
     return api("/api/public/status").then(function (s) {
-      var t = "Official sources checked every " + s.poll_minutes + " min. Last successful check: " + fmtTime(s.last_success_at) + ".";
+      var t = STATIC ? "Allotments last updated: " + fmtTime(s.last_success_at) + ". Reload the page to see newer data." : "Official sources checked every " + s.poll_minutes + " min. Last successful check: " + fmtTime(s.last_success_at) + ".";
       if (s.last_scan_status === "failed") t += " The latest check FAILED; showing the last verified data.";
       $("syncText").textContent = t;
       $("syncText").className = s.last_scan_status === "failed" ? "warn" : "";
@@ -52,12 +70,16 @@
       var today = d.today || new Date().toISOString().slice(0, 10), days = {}, order = [];
       d.sessions.forEach(function (s) { if (!days[s.date]) { days[s.date] = { date: s.date, weekday: s.weekday, sessions: [], students: 0 }; order.push(s.date); } days[s.date].sessions.push(s); days[s.date].students += s.students; });
       if (!order.length) { box.hidden = false; box.appendChild(el("p", "muted", "No allotment has been published yet. This page checks automatically.")); return; }
-      order.sort(); order = order.slice(-6);
+      order.sort(); var totalDates = order.length;
+      /* show only 2 boxes: today and the next exam day first; if fewer than 2 are current, fill with the most recent past days */
+      var soon = order.filter(function (k) { return k >= today; }).slice(0, 2);
+      var past = order.filter(function (k) { return k < today; });
+      order = past.slice(Math.max(0, past.length - (2 - soon.length))).concat(soon);
       box.hidden = false;
       var head = el("div", "pubhead");
       var ttl = el("div", "pubttl"); ttl.appendChild(el("i", "dot")); ttl.appendChild(document.createTextNode("Live Published Examination Allotments")); head.appendChild(ttl);
       var active = order.filter(function (k) { return k >= today; }).length;
-      head.appendChild(el("span", "pill ok", order.length + " Exam Date" + (order.length === 1 ? "" : "s") + " Published" + (active ? " \u00b7 " + active + " Active" : ""))); box.appendChild(head);
+      head.appendChild(el("span", "pill ok", totalDates + " Exam Date" + (totalDates === 1 ? "" : "s") + " Published" + (active ? " \u00b7 " + active + " Active" : ""))); box.appendChild(head);
       var grid = el("div", "pubgrid");
       order.forEach(function (k) {
         var g = days[k], p = k.split("-"), c = el("div", "pubday");
@@ -291,6 +313,7 @@
       u.appendChild(document.createTextNode(Object.keys(r.unverified).filter(function (k) { return r.unverified[k]; }).map(function (k) { return k.replace(/_/g, " ") + " = " + r.unverified[k]; }).join(", ") || "nothing readable"));
       u.appendChild(document.createTextNode(". Check the original page below."));
       c.appendChild(u);
+      (r.review_reasons || []).forEach(function (t) { c.appendChild(el("p", "note", "Why: " + t)); });
     }
     (r.notes || []).forEach(function (n) { c.appendChild(el("p", "note", n)); });
 
@@ -338,6 +361,12 @@
     return w;
   }
 
+  /* The static copy ships one plain image per page; the searched number is highlighted here, in the browser. */
+  function hlLayer(s) {
+    var layer = el("div", "hlbox"); layer.setAttribute("aria-hidden", "true");
+    (s.highlights || []).forEach(function (b) { var d = el("div", "hl"); d.style.left = b[0] * 100 + "%"; d.style.top = b[1] * 100 + "%"; d.style.width = b[2] * 100 + "%"; d.style.height = b[3] * 100 + "%"; layer.appendChild(d); });
+    return layer;
+  }
   function evidence(r) {
     var box = el("div", "evid");
     var all = r.sources || [];
@@ -362,7 +391,7 @@
       img.src = s.image_url;
       img.addEventListener("click", function () { openViewer(r, s); });
       img.addEventListener("error", function () { var m = el("p", "muted", "The page image could not be loaded. Use the official PDF link."); if (img.parentNode) img.parentNode.replaceChild(m, img); });
-      sec.appendChild(img);
+      var wrapEl = el("div", "pgwrap"); wrapEl.appendChild(img); wrapEl.appendChild(hlLayer(s)); sec.appendChild(wrapEl);
       box.appendChild(sec);
     });
     return box;
@@ -370,11 +399,12 @@
 
   /* ---------- full-page viewer with zoom ---------- */
   var zoom = 100, vSrc = null;
-  function setZoom(z) { zoom = Math.max(25, Math.min(400, z)); $("vImg").style.width = zoom + "%"; $("vZoom").textContent = zoom + "%"; }
+  function setZoom(z) { zoom = Math.max(25, Math.min(400, z)); $("vWrap").style.width = zoom + "%"; $("vZoom").textContent = zoom + "%"; }
   function vUrl() { return $("vHl").checked ? vSrc.image_url : vSrc.plain_image_url; }
   function openViewer(r, s) {
-    vSrc = s; $("vTitle").textContent = s.label + " \u00b7 page " + s.page; $("vHl").checked = true;
-    $("vImg").src = vUrl(); $("vDown").href = vUrl(); $("vDown").download = "page-" + s.kind + "-" + s.page + ".png";
+    vSrc = s; var oldL = $("vWrap").querySelector(".hlbox"); if (oldL) oldL.parentNode.replaceChild(hlLayer(s), oldL); else $("vWrap").appendChild(hlLayer(s));
+    $("vTitle").textContent = s.label + " \u00b7 page " + s.page; $("vHl").checked = true;
+    $("vImg").src = vUrl(); $("vDown").href = vUrl(); $("vDown").download = "page-" + s.kind + "-" + s.page + (STATIC ? ".jpg" : ".png");
     var p = $("vPdf"); if (s.official_url) { p.href = s.official_url; p.hidden = false; } else { p.hidden = true; }
     setZoom(100); $("viewer").hidden = false; document.body.classList.add("noscroll"); $("vClose").focus();
   }
@@ -383,7 +413,7 @@
   $("vIn").addEventListener("click", function () { setZoom(zoom + 25); });
   $("vOut").addEventListener("click", function () { setZoom(zoom - 25); });
   $("vFit").addEventListener("click", function () { setZoom(100); });
-  $("vHl").addEventListener("change", function () { $("vImg").src = vUrl(); $("vDown").href = vUrl(); });
+  $("vHl").addEventListener("change", function () { $("vImg").src = vUrl(); $("vDown").href = vUrl(); var L = $("vWrap").querySelector(".hlbox"); if (L) L.style.display = $("vHl").checked ? "" : "none"; });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("viewer").hidden) closeViewer(); });
 
   /* ---------- automatic refresh (never overlapping, never while hidden, never wipes good results on error) ---------- */
@@ -418,7 +448,7 @@
   });
   $("retryBtn").addEventListener("click", function () { search(lastReg || $("regInput").value, { noUrl: true }); });
   $("refreshBtn").addEventListener("click", function () { lastSig = ""; search(lastReg, { silent: true, noUrl: true }); loadPublished(); });
-  $("slipBtn").addEventListener("click", function () { if (lastReg) window.open("/api/public/slip/" + encodeURIComponent(lastReg) + "?print=1", "_blank", "noopener"); });
+  $("slipBtn").addEventListener("click", function () { if (!lastReg) return; if (STATIC) window.print(); else window.open("/api/public/slip/" + encodeURIComponent(lastReg) + "?print=1", "_blank", "noopener"); });
   window.addEventListener("popstate", function () { var q = new URL(location.href).searchParams.get("reg"); if (q) search(q, { noUrl: true }); else { view("stateWelcome"); banner(null); } });
 
   initThemes(); loadStatus(); loadPublished();

@@ -11,8 +11,7 @@
 name: VSB exam monitor
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"
+  # The schedule moved to publish-pages.yml (it runs the same cycle, then publishes the website). Run this one by hand if needed.
   workflow_dispatch:
     inputs:
       rebuild:

@@ -1,10 +1,10 @@
 09922a98adcf4dc88f84be7c331607ba0205e8480627dbe6e1bca85a063f5fae  ./.gitattributes
 6cd57e35b60d88840ac1f71f6331186db008f35539751db568148d7b9908f63b  ./.github/workflows/vsb-monitor.yml
-d7d69bdda854047e0f4f815fca38e6a7faf8cacebc59e016ab392863d111539a  ./.gitignore
+781d081788a4ffa7caaeb737e8b0aa3231c66073605cf64038946fd7e9ec88ca  ./.gitignore
 839b179be0e9d8baf161a0903ad6708e99a3c581825fdf00f70c3f83e8351a9c  ./FILE_MANIFEST.txt
 aa9306bf640cfde0d24f1a7f09a5449b063ac5cdd6ef8a2882c38656e09cec4a  ./HANDOFF_README.md
 f208ec0656028a8b8d4cbf55ea4a811bf89349ec75db7015e1b3d3a2d3bd067e  ./NOTICE.md
-c6cd00990c63fd60aa7d8d43d93fe7e968209f0d3917e896987b89cfd84a3d75  ./README.md
+72412e3a4d17166ceb51438e5d87630d8160331ccf45e95d241e028244cddfc3  ./README.md
 5bbc4f7b9eef75bff811134f18aceb6b74109ccf50ad59360c9ed48a6f3d7d70  ./RELEASE_MANIFEST_SHA256.txt
 398dc3169795c0018110bc0e5994f102484b0cd42b3f001efa8600b64596e17b  ./android/README.md
 7d94c575ae91f16b912157853f6cf133ba40d673ca41302ae54ec93a4e4a9ed1  ./android/app/build.gradle.kts
@@ -130,9 +130,9 @@ ec2b293f3537d8a3e5bd8cde519775bfcc3940c32d5e770c8d11fbed479ecedb  ./backend/app/
 a623e4f564a684652c8c5955fe73abffeb12821ee8e6401c9fa80a193ab3dde3  ./backend/app/static/js/pages-vsb-alloc.js
 9f4bc8fb496251dba3181149ac37aed6e1f0a7593c33436bcfca006240f01d4e  ./backend/app/static/js/pages-vsb.js
 139ac508fc09733e929b76936412e4eef85267d6194a9bc3aa3602e5216abd9e  ./backend/app/static/js/pages-workflow.js
-3066fe31c845eaf4dd2496146f034e3b98ef034b45e2c0b6e9e70c9f294fe3d2  ./backend/app/static/portal/index.html
-8042129c3349700b23502a9bfeb808e3e673951cc1e9335d45031ca69f640b10  ./backend/app/static/portal/portal.css
-6945397fa825f1bea61c56202a97708f6a50cb72941e2573bf3e06b70e8c8af0  ./backend/app/static/portal/portal.js
+19949bdb64c3fead9b5578e83061d83c9f50f34bfcc60d15f3964e7701a92504  ./backend/app/static/portal/index.html
+34eec0cb62db90e1ead3b63e31aae534e32185be0bfcd0b7865aad4b163e5c8f  ./backend/app/static/portal/portal.css
+0ba8058e77fe171e352ce8bead1671e7a2e81edaca2c386e2b7d33c53aa0581b  ./backend/app/static/portal/portal.js
 e952b372413f376ae2773490c2d5341756e4f14493e7c5b617b5955f25fccbc7  ./backend/app/static/portal/slip.css
 39c0f032823b1dca2e0971845fcf8d61423bb9b98056b91c99d143857c3a61d1  ./backend/app/static/portal/slip.js
 118da0d80e42f9fbc4b5a891915b859ef239a4ebfa156b6d7301c4aed8f0f9ea  ./backend/app/vsb_alloc/__init__.py
@@ -390,3 +390,8 @@ d23d5ec2ce2474783e5a60bf71cec5650e24bd328a010694cbec60bbc1c9438a  ./stop.bat
 04a5c43108d1858e36a88f5dcb9a455853ac52775dec8bfb070cbf833acd87dc  ./supabase/schema.sql
 fcd80e34d9d09c302a96e1dc768aa845812342eab4a72194e937d258c0b176d2  ./test.bat
 ad79a9ccefa693aa4d6bc9a7963582151abfcb87a791d875fdb52c9a6355cc77  ./test_windows.bat
+67740c0c80eebca65f465d80ee7b8f10eb5a81f1e2217bbef046b05083b18fa8  ./publish_site.bat
+ad89544bd5a8d37fc433e3c29c3c4ecb3625275128f81b1662988321fdd910c9  ./docs/GITHUB_PAGES.md
+c168d09c87c75a2fbc2cc3b33f1bb54ecf42c8de35cf18c19ad8c4499992dd99  ./backend/build_static_site.py
+136693a61ba14ff89c6a6391943dd5236cfb5d97ce6ccae87b1882917cae6469  ./backend/tests/test_static_site_build.py
+0fd3f64ff4c3ff6c0b26ec0e54884a9af4fb2693df87db113e9570842d842aae  ./publish_site.ps1
