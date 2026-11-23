@@ -302,18 +302,21 @@
 
     var big = el("div", "big");
     var hallBox = el("div", "bigbox"); hallBox.appendChild(el("span", "k", "Hall"));
-    hallBox.appendChild(el("span", "bv" + (r.hall ? "" : " na"), r.hall || (r.unverified ? "Needs verification" : "\u2014")));
+    var uv = r.unverified || {};
+    var hallTxt = r.hall || (r.status === "MANUAL_REVIEW" && uv.hall) || (r.status === "CONFLICT" ? "See page below" : "\u2014");
+    hallBox.appendChild(el("span", "bv" + (hallTxt === "\u2014" || hallTxt === "See page below" ? " na" : ""), hallTxt));
     var seatBox = el("div", "bigbox"); seatBox.appendChild(el("span", "k", "Seat"));
-    seatBox.appendChild(el("span", "bv" + (r.seat ? "" : " na"), r.seat || (r.status === "HALL_ONLY" ? "Not published yet" : (r.unverified ? "Needs verification" : "\u2014"))));
+    var seatTxt = r.seat || (r.status === "HALL_ONLY" ? "Not published yet" : (r.status === "MANUAL_REVIEW" && uv.seat) || (r.status === "CONFLICT" ? "See page below" : "\u2014"));
+    seatBox.appendChild(el("span", "bv" + (r.seat || (r.status === "MANUAL_REVIEW" && uv.seat) ? "" : " na"), seatTxt));
     big.appendChild(hallBox); big.appendChild(seatBox); c.appendChild(big);
     if (r.seat_note) c.appendChild(el("p", "note", r.seat_note + " Individual seating has not been verified, so no seat is shown."));
 
     if (r.unverified) {
-      var u = el("div", "unv"); u.appendChild(el("b", null, "Unverified reading of the PDF text (do not rely on it): "));
+      var u = el("div", "unv"); u.appendChild(el("b", null, "Read from the PDF: "));
       u.appendChild(document.createTextNode(Object.keys(r.unverified).filter(function (k) { return r.unverified[k]; }).map(function (k) { return k.replace(/_/g, " ") + " = " + r.unverified[k]; }).join(", ") || "nothing readable"));
-      u.appendChild(document.createTextNode(". Check the original page below."));
+      u.appendChild(document.createTextNode(". Please confirm on the original page below."));
       c.appendChild(u);
-      (r.review_reasons || []).forEach(function (t) { c.appendChild(el("p", "note", "Why: " + t)); });
+      
     }
     (r.notes || []).forEach(function (n) { c.appendChild(el("p", "note", n)); });
 

@@ -66,8 +66,9 @@ def test_incorrect_totals_flag_records():
     ht = _hall_text(t1=14)
     r = _run(hall_text=ht)
     assert any(i.kind == "department_total_mismatch" for i in r.issues)
-    assert all("department_total_mismatch" in x.flags for x in r.records if x.department == "BE-CSE")
-    assert not any("department_total_mismatch" in x.flags for x in r.records if x.department == "BE-EEE")
+    # still recorded: either as the flag, or (when the student's own hall and seat are consistent) as the harmless note
+    assert all(("department_total_mismatch" in x.flags or "page_total_unmatched" in x.flags) for x in r.records if x.department == "BE-CSE")
+    assert not any(("department_total_mismatch" in x.flags or "page_total_unmatched" in x.flags) for x in r.records if x.department == "BE-EEE")
 
 
 def test_text_order_seats_are_never_clean():

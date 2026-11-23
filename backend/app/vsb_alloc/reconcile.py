@@ -23,7 +23,14 @@ ERROR_FLAGS = frozenset({
     "hall_label_variant", "source_not_official", "provenance_mismatch"})
 WARNING_FLAGS = frozenset({
     "seat_from_text_order", "nonstandard_register_number", "department_inferred", "student_not_in_database",
-    "ocr_text", "duplicate_student", "seating_chart_missing"})
+    "ocr_text", "duplicate_student", "seating_chart_missing", "page_total_unmatched"})
+
+# Checks on PAGE / HALL TOTALS. They say something about the document as a whole, not about one student's own cell. When a student's
+# hall is named identically by BOTH official documents and the seat was read from that student's own grid cell, a total that does not
+# add up must not hide the student's hall and seat; it is kept as the harmless note "page_total_unmatched".
+AGGREGATE_FLAGS = frozenset({"group_check_failed", "hall_check_failed", "department_total_mismatch"})
+# anything that casts doubt on THIS student's own hall/seat reading keeps the record in review
+PERSONAL_DOUBT_FLAGS = (ERROR_FLAGS - AGGREGATE_FLAGS) | {"seat_from_text_order", "ocr_text", "ocr_ambiguous"}
 
 
 @dataclass
@@ -68,6 +75,19 @@ class Reconciliation:
 
 def _hall_key(h: str | None) -> str | None:
     return norm_hall(h)
+
+
+def _directly_confirmed(rec: "AllocRecord", dup_seats: set, dup_regs: set) -> bool:
+    """True when this student's own evidence is complete and consistent, whatever the page totals say."""
+    if not (rec.hall_pdf_hall and rec.seat_pdf_hall and rec.seat is not None):
+        return False
+    if _hall_key(rec.hall_pdf_hall) is None or _hall_key(rec.hall_pdf_hall) != _hall_key(rec.seat_pdf_hall):
+        return False
+    if set(rec.flags) & PERSONAL_DOUBT_FLAGS:
+        return False
+    if rec.register_number in dup_regs or (_hall_key(rec.seat_pdf_hall), rec.seat) in dup_seats:
+        return False
+    return True
 
 
 def reconcile(hall_doc: HallDocument | None, seat_doc: SeatDocument | None, exam_date: date, session: str,
@@ -268,6 +288,18 @@ def reconcile(hall_doc: HallDocument | None, seat_doc: SeatDocument | None, exam
         if (h, rec.subject_code) in late_groups and "group_check_failed" not in rec.flags:
             rec.flags = sorted(set(rec.flags) | {"group_check_failed"})
         rec.confidence = 0.3 if rec.blocking else 0.65 if rec.uncertain else 0.97
+
+    # Page-total mismatches must not hide a student whose own hall (both documents) and seat (own grid cell) are consistent.
+    dup_seats = {(_hall_key(i.hall), i.detail.get("seat")) for i in issues if i.kind == "duplicate_seat"}
+    dup_seats |= {(_hall_key(sh.hall), a.seat) for sh in sheets for a in sh.assignments if a.seat is not None
+                  and sum(1 for b in sh.assignments if b.seat == a.seat) > 1}
+    dup_regs = {i.register_number for i in issues if i.kind in ("duplicate_student_in_hall", "student_in_several_subjects") and i.register_number}
+    for rec in records:
+        agg = set(rec.flags) & AGGREGATE_FLAGS
+        if agg and _directly_confirmed(rec, dup_seats, dup_regs):
+            rec.flags = sorted((set(rec.flags) - AGGREGATE_FLAGS) | {"page_total_unmatched"})
+            rec.notes.append("page totals did not add up (" + ", ".join(sorted(agg)) + "); hall and seat confirmed from this student's own entries")
+            rec.confidence = 0.65 if rec.uncertain else 0.97
 
     by_dept: Counter = Counter(r.department or "unknown" for r in records)
     by_subject: Counter = Counter(r.subject_code or "unknown" for r in records)
