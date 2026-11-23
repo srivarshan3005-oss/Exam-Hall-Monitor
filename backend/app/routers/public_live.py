@@ -57,7 +57,7 @@ def _unverified(notes: str | None) -> dict | None:
 
 
 def _human_notes(notes: str | None) -> list[str]:
-    return [p for p in (notes or "").split(" | ") if p and not p.startswith("unverified:")]
+    return [p for p in (notes or "").split(" | ") if p and not p.startswith(("unverified:", "page totals did not add up"))]
 
 
 def _src(db: Session, a: dm.LiveAllotment, which: str) -> dict | None:

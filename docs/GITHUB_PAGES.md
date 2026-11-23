@@ -19,7 +19,7 @@ GitHub Pages cannot run the Python server, so this project can publish a **stati
 `schtasks /create /sc minute /mo 30 /tn ExamMonitorPublish /tr "C:\ExamMonitor\publish_site.bat"` (the laptop and the server must be on).
 
 ## Fully automatic version (no laptop, no start.bat)
-`.github/workflows/publish-pages.yml` does everything on GitHub's servers every 30 minutes: read the official VSB notice page, download and parse new PDFs, build the static portal and publish it.
+`.github/workflows/publish-pages.yml` does everything on GitHub's servers every 15 minutes: read the official VSB notice page, download and parse new PDFs, build the static portal and publish it.
 
 One-time setup:
 1. Push this project to the `main` branch of your repository.
@@ -28,3 +28,18 @@ One-time setup:
 
 Safety: if the official site cannot be read or no allotment is found, nothing is deployed and the last good site stays online. The old `gh-pages` branch is no longer used and can be deleted.
 Limits: GitHub's schedule is best effort (late runs happen); scheduled workflows stop after 60 days without repository activity.
+
+## If a scheduled run is late or missing (optional, most reliable)
+
+GitHub's own cron is "best effort": runs can be late, and on quiet repositories some are skipped. For exam days you can make
+the timing reliable with a free external timer that presses "Run workflow" for you every 10 minutes:
+
+1. GitHub -> profile picture -> Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens -> Generate.
+   Repository access: only `Exam-Hall-Monitor`. Permission: Actions = Read and write. Copy the token.
+2. On https://cron-job.org (free) create a cron job, every 10 minutes:
+   - URL: `https://api.github.com/repos/srivarshan3005-oss/Exam-Hall-Monitor/actions/workflows/publish-pages.yml/dispatches`
+   - Method: POST, body: `{"ref":"main"}`
+   - Headers: `Authorization: Bearer <your token>`, `Accept: application/vnd.github+json`, `Content-Type: application/json`
+3. A correct call answers HTTP 204. Runs started this way show "Manually run" in the Actions tab.
+
+Each run's Summary box lists the official PDFs it found and the number of students per exam date (script `scripts/what_found.py`).

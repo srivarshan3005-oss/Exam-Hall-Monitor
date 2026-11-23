@@ -1,5 +1,5 @@
 # FULLY AUTOMATIC website - no laptop, no start.bat.
-# Every 30 minutes GitHub's own servers: read the official VSB notice page -> download new PDFs -> parse them ->
+# Every 15 minutes GitHub's own servers: read the official VSB notice page -> download new PDFs -> parse them ->
 # build the static student portal -> publish it to GitHub Pages.
 #
 # One-time setting: repository Settings -> Pages -> Build and deployment -> Source = "GitHub Actions".
@@ -15,7 +15,8 @@ name: Publish student portal (automatic)
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    # Every 15 minutes, at off-peak minutes (GitHub delays or drops jobs scheduled exactly on :00 / :30 when it is busy).
+    - cron: "4,19,34,49 * * * *"
   workflow_dispatch:
     inputs:
       rebuild:
@@ -89,6 +90,17 @@ jobs:
         working-directory: backend
         continue-on-error: true
         run: python -m app.cli run-cycle ${{ inputs.rebuild && '--rebuild' || '' }} | tee ../.monitor-state/last-cycle.json
+
+      - name: Show which official PDFs were found (see the run Summary)
+        working-directory: backend
+        continue-on-error: true
+        run: |
+          {
+            echo "### Official PDFs found, and students per exam date"
+            echo '```'
+            python scripts/what_found.py
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Explain records that need verification (see the run Summary)
         working-directory: backend
