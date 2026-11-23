@@ -1,0 +1,2 @@
+# OCR libraries are now part of requirements.txt (Phase 3). Only the Tesseract binary is installed separately.
+-r requirements.txt

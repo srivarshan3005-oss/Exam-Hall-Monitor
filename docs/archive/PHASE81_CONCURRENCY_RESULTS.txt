@@ -1,0 +1,17 @@
+Phase 8.1 - concurrency results (transcribed from the console output of the runs; JUnit files of the runs were not kept)
+Scenario tests: tests/test_phase8_database.py (HTTP-level races fired through a barrier: same seat, hall capacity, student in two
+simultaneous exams, same seat in two simultaneous exams) + direct-session unique-constraint backstop + lock-wait test + concurrent migrations.
+
+WITH the allocation lock (the shipped code), final run of the code: 10 repeated runs per engine, every concurrency test 10/10 passed
+  suite on SQLite: 10/10 for all 8 tests      suite on PostgreSQL 16.15: 10/10 for all 8 tests
+Earlier on PostgreSQL: 1 error in 10 runs of test_concurrent_migrations_run_once[postgres] - fixture TEARDOWN could not DROP the scratch
+database (autovacuum, another role, blocked DROP ... WITH (FORCE)); the test assertions had passed. Cleanup now retries; 20/20 clean runs after.
+
+WITHOUT the lock (control experiment, lock monkeypatched to a no-op), 12 attempts per scenario, number of attempts that violated the rule:
+  PostgreSQL: capacity 12/12, cross-exam seat 12/12, student clash 12/12, same seat 0/12 (unique constraint holds)
+  SQLite:     capacity 12/12, cross-exam seat  6/12, student clash  4/12, same seat 0/12
+
+Test-code defect found and fixed during this phase: test_database_unique_constraint_is_the_backstop_without_the_lock read ORM attributes of
+the main thread's session from worker threads (intermittent InterfaceError / IndexError / ObjectDeletedError). Fixed by passing plain ids.
+Verification of that fix: 12 of 12 whole-module SQLite runs clean afterwards (earlier failure appeared within 2-16 runs). It was NOT
+re-run in the full suites after the fix (see PHASE_PROGRESS.md).

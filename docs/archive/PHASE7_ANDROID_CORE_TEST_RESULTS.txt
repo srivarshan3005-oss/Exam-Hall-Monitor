@@ -1,0 +1,5 @@
+Phase 7 - Android pure-Kotlin core tests (android/app/src/test/.../CoreLogicTest.kt)
+Compiled with kotlinc 2.0.21 (JVM) against a minimal JUnit shim and executed with a reflection runner.
+RESULT passed=25 failed=0
+(RoleNavigationTest 7, ErrorAndValidationTest 8, TimetableAndNotificationTest 7, DataIsolationAndMappingTest 3)
+NOT run here: DataLayerTest.kt (needs real Gson/OkHttp/MockWebServer from Maven) and all Compose/Android code.

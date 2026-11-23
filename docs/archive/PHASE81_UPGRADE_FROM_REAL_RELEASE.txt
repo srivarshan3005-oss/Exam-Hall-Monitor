@@ -1,0 +1,62 @@
+# Phase 8.1 - upgrade of databases that already applied the previous migrations (actual console output)
+# 2026-11-15T04:17Z | SQLite 3.45.1 | PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+# Fixture tests/fixtures/phase71_release.sqlite3 was written by the UNTOUCHED Phase 7.1 build (its own migrations 0001-0009 and ORM).
+
+## A. SQLite - real Phase 7.1 database file, upgraded as a copy
+$ python -m app.cli db-audit
+Revision: 0009   (application needs 0010)
+PROBLEM: Schema differs from the models: ["('add_index', Index('ix_official_documents_term_id', Column('term_id', Integer(), table=<official_documents>)))", "('add_index', Index('ix_register_entries_s
+PROBLEM: Constraints not present: ['ck_users_role', 'ck_users_status', 'ck_exams_status', 'ck_results_marks_range', 'ck_allotments_hall_seat_nonblank']
+Database schema needs attention (nothing was changed)
+$ python -m app.cli migrate
+Database copied to rel2.db.pre-migration-0009-to-0010-20261115T041719Z.bak before upgrading 0009 -> 0010
+Database is at revision 0010
+$ python -m app.cli migrate
+Database is at revision 0010
+$ python -m app.cli db-audit
+Revision: 0010   (application needs 0010)
+Database schema OK
+files next to the database:
+   rel2.db
+   rel2.db.migrate.lock
+   rel2.db.pre-migration-0009-to-0010-20261115T041719Z.bak
+   allotments        30 rows   original == upgraded == safety copy: True
+   announcements      1 rows   original == upgraded == safety copy: True
+   audit_logs         1 rows   original == upgraded == safety copy: True
+   exams              3 rows   original == upgraded == safety copy: True
+   hall_seats        40 rows   original == upgraded == safety copy: True
+   halls              1 rows   original == upgraded == safety copy: True
+   notifications      1 rows   original == upgraded == safety copy: True
+   results           10 rows   original == upgraded == safety copy: True
+   students          30 rows   original == upgraded == safety copy: True
+   users              2 rows   original == upgraded == safety copy: True
+tables compared: 40 (10 contain rows) | tables with any difference: 0
+integrity_check: ok | foreign_key_check: []
+revision: original 0009 -> upgraded 0010 | safety copy 0009
+
+## B. PostgreSQL - database already at revision 0009 (SIMULATED: no released build can create one), upgraded through the CLI
+$ python -m app.cli migrate   (empty database)
+Empty PostgreSQL database initialised directly at revision 0010
+Database is at revision 0010
+$ python -m alembic downgrade 0009   (leaves exactly the 0009 shape)
+INFO  [alembic.runtime.migration] Running downgrade 0010 -> 0009, Phase 8.1: schema hardening - missing foreign-key inde
+revision before: 0009 | rows: {'students': 30, 'users': 2, 'exams': 1, 'allotments': 30, 'results': 10, 'audit_logs': 1}
+$ python -m app.cli db-audit
+Revision: 0009   (application needs 0010)
+PROBLEM: Schema differs from the models: ["('add_index', Index('ix_official_documents_term_id', Column('term_id', Integer(), table=<official_documents>)))", "('
+PROBLEM: Constraints not present: ['ck_users_role', 'ck_users_status', 'ck_exams_status', 'ck_results_marks_range', 'ck_allotments_hall_seat_nonblank']
+Database schema needs attention (nothing was changed)
+$ python -m app.cli migrate
+Database is at revision 0010
+$ python -m app.cli migrate
+Database is at revision 0010
+$ python -m app.cli db-audit
+Revision: 0010   (application needs 0010)
+Database schema OK
+   students      30 rows   identical after upgrade: True
+   users          2 rows   identical after upgrade: True
+   exams          1 rows   identical after upgrade: True
+   allotments    30 rows   identical after upgrade: True
+   results       10 rows   identical after upgrade: True
+   audit_logs     1 rows   identical after upgrade: True
+revision after: 0010

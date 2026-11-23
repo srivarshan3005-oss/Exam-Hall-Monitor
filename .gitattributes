@@ -1,0 +1,8 @@
+# Keep Windows batch scripts CRLF and POSIX scripts LF so they run after checkout/extraction.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+android/gradlew text eol=lf
+*.sh text eol=lf
+*.jar binary
+*.sqlite3 binary

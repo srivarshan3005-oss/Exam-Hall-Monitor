@@ -1,0 +1,84 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: exam_monitor
+      POSTGRES_USER: exam_monitor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exam_monitor -d exam_monitor"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg://exam_monitor:${POSTGRES_PASSWORD}@db:5432/exam_monitor
+      DOCUMENT_STORAGE_DIR: /app/uploads
+      PUBLIC_BASE_URL: https://${DOMAIN_NAME:?Set DOMAIN_NAME in backend/.env.production}
+      CORS_ORIGINS: https://${DOMAIN_NAME}
+      TRUST_PROXY: "true"
+      ENABLE_DOCS: "false"
+      SEED_DEMO: "false"
+      # Scheduled backups of PostgreSQL need pg_dump (matching server major version 16) inside this image, which is not
+      # installed. Default off so the scheduler does not fail every cycle; see docs/BACKUP_RECOVERY.md and docs/DOCKER.md.
+      BACKUP_SCHEDULE_ENABLED: "${BACKUP_SCHEDULE_ENABLED:-false}"
+    volumes:
+      - app_uploads:/app/uploads
+      - app_backups:/app/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    expose: ["8000"]
+    networks: [internal]
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  proxy:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME:?Set DOMAIN_NAME in backend/.env.production}
+      NGINX_ENVSUBST_FILTER: DOMAIN_NAME
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
+    networks: [internal]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+networks:
+  internal:
+    driver: bridge
+volumes:
+  postgres_data:
+  app_uploads:
+  app_backups:

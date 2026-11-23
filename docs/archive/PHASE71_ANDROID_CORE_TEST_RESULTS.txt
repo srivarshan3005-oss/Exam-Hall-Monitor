@@ -1,0 +1,31 @@
+Phase 7.1 - Android pure-Kotlin core tests, re-run 14 Nov 2026
+Command: kotlinc 2.0.21 (JetBrains release, JDK 21) compiled app/src/main/.../core/*.kt + app/src/test/.../CoreLogicTest.kt
+against a minimal JUnit-4 API shim (org.junit.Test/Before/Assert) and a reflection runner. NOT Gradle's testDebugUnitTest.
+Not covered here: DataLayerTest.kt (needs Maven libraries) and all Android/Compose code.
+
+PASS RoleNavigationTest.adminAndSuperAdminMayPublish
+PASS RoleNavigationTest.invigilatorCannotSearchStudentsOrPublish
+PASS RoleNavigationTest.routerFollowsSessionState
+PASS RoleNavigationTest.staffSideNeverSeesStudentOnlyTabs
+PASS RoleNavigationTest.studentGetsStudentTabsOnly
+PASS RoleNavigationTest.studentHasNoStaffCapabilities
+PASS RoleNavigationTest.unknownRoleIsRejected
+PASS ErrorAndValidationTest.apiUrlRequiresHttpsInRelease
+PASS ErrorAndValidationTest.cacheFallbackOnlyForConnectivityNotPermissions
+PASS ErrorAndValidationTest.httpStatusesMapToKinds
+PASS ErrorAndValidationTest.loginValidation
+PASS ErrorAndValidationTest.passwordPolicyMirrorsBackend
+PASS ErrorAndValidationTest.rateLimitCarriesRetryAfter
+PASS ErrorAndValidationTest.resetTokenFromLinkOrRaw
+PASS ErrorAndValidationTest.serverErrorsNeverLeakBodyText
+PASS TimetableAndNotificationTest.countdownLabels
+PASS TimetableAndNotificationTest.formatting
+PASS TimetableAndNotificationTest.notificationLinksOnlyOpenAllowedTabs
+PASS TimetableAndNotificationTest.pagingMergeHasNoDuplicates
+PASS TimetableAndNotificationTest.readUnreadReducers
+PASS TimetableAndNotificationTest.timestampsParseWithAndWithoutZone
+PASS TimetableAndNotificationTest.upcomingPastAndNext
+PASS DataIsolationAndMappingTest.cacheKeysAreNamespacedPerUser
+PASS DataIsolationAndMappingTest.mappersAcceptValidPayloads
+PASS DataIsolationAndMappingTest.mappersRejectMissingRequiredFields
+RESULT passed=25 failed=0

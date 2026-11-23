@@ -1,0 +1,1168 @@
+........................................................................ [ 11%]
+........................................................................ [ 23%]
+...F.F.................................................................. [ 35%]
+........................................................................ [ 47%]
+.......................F..........F..................................... [ 59%]
+..........................F.........................sFs.s.sFsF..FFsFsFsF [ 71%]
+sFs.sF.FFsssssssss..................s................................... [ 83%]
+.........................................................F.............. [ 95%]
+...........................F..                                           [100%]
+=================================== FAILURES ===================================
+___________________ test_upgrade_head_matches_models_exactly ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_upgrade_head_matches_mode0')
+
+    def test_upgrade_head_matches_models_exactly(tmp_path):
+        command.upgrade(_cfg(tmp_path), "head")
+        eng = _engine(tmp_path)
+        with eng.connect() as conn:
+            diff = compare_metadata(MigrationContext.configure(conn, opts={"compare_type": True}), Base.metadata)
+>       assert diff == [], f"migrations and models disagree: {diff}"
+E       AssertionError: migrations and models disagree: [('remove_index', Index('ix_allotments_exam_student', Column('exam_id', INTEGER(), table=<allotments>, nullable=False), Column('student_id', INTEGER(), table=<allotments>, nullable=False))), ('remove_index', Index('ix_audit_logs_created_actor', Column('created_at', DATETIME(), table=<audit_logs>, nullable=False), Column('actor', VARCHAR(length=80), table=<audit_logs>, nullable=False))), ('remove_index', Index('ix_auth_sessions_active_user', Column('user_id', INTEGER(), table=<auth_sessions>, nullable=False), Column('revoked_at', DATETIME(), table=<auth_sessions>), Column('expires_at', DATETIME(), table=<auth_sessions>, nullable=False))), ('remove_index', Index('ix_exams_date_status', Column('exam_date', VARCHAR(length=20), table=<exams>, nullable=False), Column('status', VARCHAR(length=20), table=<exams>, nullable=False))), ('remove_index', Index('ix_results_student_exam', Column('student_id', INTEGER(), table=<results>, nullable=False), Column('exam_id', INTEGER(), table=<results>, nullable=False))), ('remove_index', Index('ix_security_events_created_type', Column('created_at', DATETIME(), table=<security_events>, nullable=False), Column('event_type', VARCHAR(length=50), table=<security_events>, nullable=False))), ('remove_index', Index('ix_students_department_year', Column('department', VARCHAR(length=100), table=<students>, nullable=False), Column('year', INTEGER(), table=<students>, nullable=False)))]
+E       assert [('remove_ind...False))), ...] == []
+E         
+E         Left contains 7 more items, first extra item: ('remove_index', Index('ix_allotments_exam_student', Column('exam_id', INTEGER(), table=<allotments>, nullable=False), Column('student_id', INTEGER(), table=<allotments>, nullable=False)))
+E         Use -v to get more diff
+
+tests/test_migrations.py:35: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_allotments_exam_student' on 'allotments'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_audit_logs_created_actor' on 'audit_logs'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_auth_sessions_active_user' on 'auth_sessions'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_exams_date_status' on 'exams'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_results_student_exam' on 'results'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_security_events_created_type' on 'security_events'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_students_department_year' on 'students'
+_______________________ test_downgrade_to_base_and_back ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_downgrade_to_base_and_bac0')
+
+    def test_downgrade_to_base_and_back(tmp_path):
+        cfg = _cfg(tmp_path)
+        command.upgrade(cfg, "head")
+>       command.downgrade(cfg, "0001")
+
+tests/test_migrations.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../venv/lib/python3.12/site-packages/alembic/command.py:534: in downgrade
+    script.run_env()
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:550: in run_env
+    util.load_python_file(self.dir, "env.py")
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:114: in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:132: in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:995: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+migrations/env.py:66: in <module>
+    run_migrations_online()
+migrations/env.py:60: in run_migrations_online
+    context.run_migrations()
+<string>:8: in run_migrations
+    ???
+../../../venv/lib/python3.12/site-packages/alembic/runtime/environment.py:970: in run_migrations
+    self.get_context().run_migrations(**kw)
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:604: in run_migrations
+    for step in self._migrations_fn(heads, self):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/command.py:523: in downgrade
+    return script._downgrade_revs(revision, rev)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:441: in _downgrade_revs
+    migration.MigrationStep.downgrade_from_script(
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:968: in downgrade_from_script
+    return RevisionStep(revision_map, script, False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = RevisionStep('0012', is_upgrade=False)
+revision_map = <alembic.script.revision.RevisionMap object at 0x7f8ef417b500>
+revision = Script('0012', '0011'), is_upgrade = False
+
+    def __init__(
+        self, revision_map: RevisionMap, revision: Script, is_upgrade: bool
+    ) -> None:
+        self.revision_map = revision_map
+        self.revision = revision
+        self.is_upgrade = is_upgrade
+        if is_upgrade:
+            self.migration_fn = revision.module.upgrade
+        else:
+>           self.migration_fn = revision.module.downgrade
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module '0012_vsb_official_sources_py' has no attribute 'downgrade'
+
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:1004: AttributeError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+__________________ test_0007_upgrade_keeps_existing_accounts ___________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_0007_upgrade_keeps_existi0')
+
+    def test_0007_upgrade_keeps_existing_accounts(tmp_path):
+        cfg = alembic_config("sqlite:///" + (tmp_path / "up.db").as_posix())
+        command.upgrade(cfg, "0006")
+        con = sqlite3.connect(tmp_path / "up.db")
+        con.execute("INSERT INTO users (username,password_hash,role,active,failed_attempts,token_version) VALUES ('old','h','admin',1,0,0)")
+        con.execute("INSERT INTO users (username,password_hash,role,active,failed_attempts,token_version) VALUES ('gone','h','staff',0,0,0)")
+        con.commit()
+        con.close()
+        command.upgrade(cfg, "head")
+        con = sqlite3.connect(tmp_path / "up.db")
+        rows = dict((r[0], r[1:]) for r in con.execute("SELECT username, role, active, status, must_change_password FROM users"))
+        assert rows["old"] == ("admin", 1, "active", 0) and rows["gone"] == ("staff", 0, "suspended", 0)
+>       command.downgrade(cfg, "0006")
+
+tests/test_phase4_security.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../venv/lib/python3.12/site-packages/alembic/command.py:534: in downgrade
+    script.run_env()
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:550: in run_env
+    util.load_python_file(self.dir, "env.py")
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:114: in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:132: in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:995: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+migrations/env.py:66: in <module>
+    run_migrations_online()
+migrations/env.py:60: in run_migrations_online
+    context.run_migrations()
+<string>:8: in run_migrations
+    ???
+../../../venv/lib/python3.12/site-packages/alembic/runtime/environment.py:970: in run_migrations
+    self.get_context().run_migrations(**kw)
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:604: in run_migrations
+    for step in self._migrations_fn(heads, self):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/command.py:523: in downgrade
+    return script._downgrade_revs(revision, rev)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:441: in _downgrade_revs
+    migration.MigrationStep.downgrade_from_script(
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:968: in downgrade_from_script
+    return RevisionStep(revision_map, script, False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = RevisionStep('0012', is_upgrade=False)
+revision_map = <alembic.script.revision.RevisionMap object at 0x7f8ef497b560>
+revision = Script('0012', '0011'), is_upgrade = False
+
+    def __init__(
+        self, revision_map: RevisionMap, revision: Script, is_upgrade: bool
+    ) -> None:
+        self.revision_map = revision_map
+        self.revision = revision
+        self.is_upgrade = is_upgrade
+        if is_upgrade:
+            self.migration_fn = revision.module.upgrade
+        else:
+>           self.migration_fn = revision.module.downgrade
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module '0012_vsb_official_sources_py' has no attribute 'downgrade'
+
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:1004: AttributeError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+_______________ test_every_api_path_used_by_the_frontend_exists ________________
+
+client = <starlette.testclient.TestClient object at 0x7f8ef4bef800>
+
+    def test_every_api_path_used_by_the_frontend_exists(client):
+        paths = list(client.app.openapi()["paths"])
+        missing = []
+        for f in JS:
+            for m in re.finditer(r"[`\"'](/api/[^`\"'?]*)", f.read_text()):
+                raw = m.group(1)
+                if not any(_matches(raw, raw.endswith("/"), p) for p in paths) and not any(_matches(raw.rstrip("/"), False, p) for p in paths):
+                    missing.append((f.name, raw))
+>       assert missing == []
+E       AssertionError: assert [('pages-vsb-...-allocation')] == []
+E         
+E         Left contains one more item: ('pages-vsb-alloc.js', '/api/vsb-allocation')
+E         Use -v to get more diff
+
+tests/test_phase5_frontend_contract.py:32: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+------------------------------ Captured log setup ------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume non-transactional DDL.
+_______ test_migration_0009_keeps_existing_announcements_and_downgrades ________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_migration_0009_keeps_exis0')
+
+    def test_migration_0009_keeps_existing_announcements_and_downgrades(tmp_path):
+        from alembic import command
+        from sqlalchemy import create_engine, text, inspect
+        from app.dbcheck import alembic_config
+        url = "sqlite:///" + (tmp_path / "m.db").as_posix()
+        cfg = alembic_config(url)
+        command.upgrade(cfg, "0008")
+        eng = create_engine(url)
+        with eng.begin() as c:
+            c.execute(text("INSERT INTO announcements (title, body, published, created_by, created_at, updated_at) VALUES ('Old', 'body', 1, 'admin', '2026-01-01', '2026-01-01')"))
+        command.upgrade(cfg, "head")
+        with eng.connect() as c:
+            row = c.execute(text("SELECT title, published, priority, notify, audience_roles, notified_at FROM announcements")).one()
+        assert tuple(row) == ("Old", 1, "normal", 0, None, None)                                    # old data intact, nobody re-notified
+        assert {"notifications", "notification_preferences", "email_deliveries", "email_templates"} <= set(inspect(eng).get_table_names())
+>       command.downgrade(cfg, "0008")
+
+tests/test_phase6_workflows.py:307: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../venv/lib/python3.12/site-packages/alembic/command.py:534: in downgrade
+    script.run_env()
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:550: in run_env
+    util.load_python_file(self.dir, "env.py")
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:114: in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:132: in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:995: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+migrations/env.py:66: in <module>
+    run_migrations_online()
+migrations/env.py:60: in run_migrations_online
+    context.run_migrations()
+<string>:8: in run_migrations
+    ???
+../../../venv/lib/python3.12/site-packages/alembic/runtime/environment.py:970: in run_migrations
+    self.get_context().run_migrations(**kw)
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:604: in run_migrations
+    for step in self._migrations_fn(heads, self):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/command.py:523: in downgrade
+    return script._downgrade_revs(revision, rev)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:441: in _downgrade_revs
+    migration.MigrationStep.downgrade_from_script(
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:968: in downgrade_from_script
+    return RevisionStep(revision_map, script, False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = RevisionStep('0012', is_upgrade=False)
+revision_map = <alembic.script.revision.RevisionMap object at 0x7f8eeed36630>
+revision = Script('0012', '0011'), is_upgrade = False
+
+    def __init__(
+        self, revision_map: RevisionMap, revision: Script, is_upgrade: bool
+    ) -> None:
+        self.revision_map = revision_map
+        self.revision = revision
+        self.is_upgrade = is_upgrade
+        if is_upgrade:
+            self.migration_fn = revision.module.upgrade
+        else:
+>           self.migration_fn = revision.module.downgrade
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module '0012_vsb_official_sources_py' has no attribute 'downgrade'
+
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:1004: AttributeError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+_________ test_fresh_database_reaches_head_and_matches_models[sqlite] __________
+
+scratch_url = 'sqlite:////tmp/pytest-of-root/pytest-0/test_fresh_database_reaches_he0/scratch.db'
+
+    def test_fresh_database_reaches_head_and_matches_models(scratch_url):
+        with use_database(scratch_url) as eng:
+>           assert dbcheck.migrate() == HEAD
+E           AssertionError: assert '0013' == '0010'
+E             
+E             - 0010
+E             ?    ^
+E             + 0013
+E             ?    ^
+
+tests/test_phase8_database.py:223: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+------------------------------ Captured log call -------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume non-transactional DDL.
+________ test_upgrade_from_previous_schema_preserves_every_row[sqlite] _________
+
+scratch_url = 'sqlite:////tmp/pytest-of-root/pytest-0/test_upgrade_from_previous_sch0/scratch.db'
+
+    def test_upgrade_from_previous_schema_preserves_every_row(scratch_url):
+        with use_database(scratch_url) as eng:
+            at_previous_schema(scratch_url)
+            tables = seed_previous_schema(eng)
+            with eng.connect() as c:
+                before = {t: rows(c, t) for t in tables}
+>           assert dbcheck.migrate() == HEAD
+E           AssertionError: assert '0013' == '0010'
+E             
+E             - 0010
+E             ?    ^
+E             + 0013
+E             ?    ^
+
+tests/test_phase8_database.py:272: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+WARNI [exam_monitor.dbcheck] Database copied to scratch.db.pre-migration-0009-to-0013-20261115T220332Z.bak before upgrading 0009 -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+_________ test_upgrade_makes_a_consistent_safety_copy_of_a_sqlite_file _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_upgrade_makes_a_consisten0')
+
+    def test_upgrade_makes_a_consistent_safety_copy_of_a_sqlite_file(tmp_path):
+        url = "sqlite:///" + (tmp_path / "live.db").as_posix()
+        with use_database(url) as eng:
+            upgrade_to(url, PREVIOUS_HEAD)
+            seed_previous_schema(eng)
+            dbcheck.migrate()
+            copies = list(tmp_path.glob("live.db.pre-migration-*.bak"))
+>           assert len(copies) == 1 and f"-{PREVIOUS_HEAD}-to-{HEAD}-" in copies[0].name
+E           AssertionError: assert (1 == 1 and '-0009-to-0010-' in 'live.db.pre-migration-0009-to-0013-20261115T220332Z.bak')
+E            +  where 1 = len([PosixPath('/tmp/pytest-of-root/pytest-0/test_upgrade_makes_a_consisten0/live.db.pre-migration-0009-to-0013-20261115T220332Z.bak')])
+E            +  and   'live.db.pre-migration-0009-to-0013-20261115T220332Z.bak' = PosixPath('/tmp/pytest-of-root/pytest-0/test_upgrade_makes_a_consisten0/live.db.pre-migration-0009-to-0013-20261115T220332Z.bak').name
+
+tests/test_phase8_database.py:292: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+WARNI [exam_monitor.dbcheck] Database copied to live.db.pre-migration-0009-to-0013-20261115T220332Z.bak before upgrading 0009 -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+____________ test_legacy_starter_database_is_stamped_then_upgraded _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_legacy_starter_database_i0')
+
+    def test_legacy_starter_database_is_stamped_then_upgraded(tmp_path):
+        """A 0.1.0 database (tables but no alembic_version) must be adopted, with its data intact."""
+        url = "sqlite:///" + (tmp_path / "legacy.db").as_posix()
+        with use_database(url) as eng:
+            upgrade_to(url, "0001")
+            with eng.begin() as c:
+                c.execute(text("INSERT INTO students (id, register_number, full_name, department, year, active) "
+                               "VALUES (1,:r,'Legacy Student','ECE',1,:a)"), {"r": REG1, "a": True})
+                c.execute(text("DROP TABLE alembic_version"))
+            assert dbcheck.is_legacy_database()
+>           assert dbcheck.migrate() == HEAD
+E           AssertionError: assert '0013' == '0010'
+E             
+E             - 0010
+E             ?    ^
+E             + 0013
+E             ?    ^
+
+tests/test_phase8_database.py:329: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+WARNI [exam_monitor.dbcheck] Database copied to legacy.db.pre-migration-legacy-to-0013-20261115T220333Z.bak before upgrading legacy -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running stamp_revision  -> 0001
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+WARNI [exam_monitor.dbcheck] Database copied to legacy.db.pre-migration-0001-to-0013-20261115T220333Z.bak before upgrading 0001 -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+_ test_dirty_legacy_data_is_kept_and_unsatisfiable_constraints_are_skipped[sqlite] _
+
+scratch_url = 'sqlite:////tmp/pytest-of-root/pytest-0/test_dirty_legacy_data_is_kept0/scratch.db'
+
+    def test_dirty_legacy_data_is_kept_and_unsatisfiable_constraints_are_skipped(scratch_url):
+        with use_database(scratch_url) as eng:
+            at_previous_schema(scratch_url)
+            tables = seed_previous_schema(eng, dirty=True)
+            with eng.connect() as c:
+                before = {t: rows(c, t) for t in tables}
+>           assert dbcheck.migrate() == HEAD                      # still succeeds
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: assert '0013' == '0010'
+E             
+E             - 0010
+E             ?    ^
+E             + 0013
+E             ?    ^
+
+tests/test_phase8_database.py:341: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+WARNI [exam_monitor.dbcheck] Database copied to scratch.db.pre-migration-0009-to-0013-20261115T220333Z.bak before upgrading 0009 -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+WARNI [alembic.runtime.migration] 0010: students [1] are linked to more than one user account; created a NON-unique index ix_users_student_id. Resolve the duplicates and run 'python -m app.cli db-audit'.
+WARNI [alembic.runtime.migration] 0010: 1 row(s) in users violate ck_users_role; constraint NOT added (data left untouched). Fix the rows, then run 'python -m app.cli db-audit'.
+WARNI [alembic.runtime.migration] 0010: 1 row(s) in exams violate ck_exams_status; constraint NOT added (data left untouched). Fix the rows, then run 'python -m app.cli db-audit'.
+WARNI [alembic.runtime.migration] 0010: 1 row(s) in results violate ck_results_marks_range; constraint NOT added (data left untouched). Fix the rows, then run 'python -m app.cli db-audit'.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+_ test_skipped_constraints_can_be_reapplied_after_the_data_is_corrected[sqlite] _
+
+scratch_url = 'sqlite:////tmp/pytest-of-root/pytest-0/test_skipped_constraints_can_b0/scratch.db'
+
+    def test_skipped_constraints_can_be_reapplied_after_the_data_is_corrected(scratch_url):
+        """Documented recovery path (docs/MIGRATIONS.md): fix the reported rows, `alembic downgrade 0009`, `migrate`."""
+        with use_database(scratch_url) as eng:
+            at_previous_schema(scratch_url)
+            tables = seed_previous_schema(eng, dirty=True)
+            dbcheck.migrate()
+            assert not dbcheck.audit_schema()["ok"]
+            with eng.begin() as c:                                        # the administrator corrects the reported rows
+                c.execute(text("UPDATE users SET student_id = NULL WHERE id = 3"))
+                c.execute(text("UPDATE users SET role = 'staff' WHERE id = 4"))
+                c.execute(text("UPDATE results SET marks = 100 WHERE id = 2"))
+                c.execute(text("UPDATE exams SET status = 'draft' WHERE id = 3"))
+            with eng.connect() as c:
+                fixed = {t: rows(c, t) for t in tables}
+>           command.downgrade(dbcheck.alembic_config(scratch_url), PREVIOUS_HEAD)
+
+tests/test_phase8_database.py:370: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../venv/lib/python3.12/site-packages/alembic/command.py:534: in downgrade
+    script.run_env()
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:550: in run_env
+    util.load_python_file(self.dir, "env.py")
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:114: in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:132: in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:995: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+migrations/env.py:66: in <module>
+    run_migrations_online()
+migrations/env.py:60: in run_migrations_online
+    context.run_migrations()
+<string>:8: in run_migrations
+    ???
+../../../venv/lib/python3.12/site-packages/alembic/runtime/environment.py:970: in run_migrations
+    self.get_context().run_migrations(**kw)
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:604: in run_migrations
+    for step in self._migrations_fn(heads, self):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/command.py:523: in downgrade
+    return script._downgrade_revs(revision, rev)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:441: in _downgrade_revs
+    migration.MigrationStep.downgrade_from_script(
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:968: in downgrade_from_script
+    return RevisionStep(revision_map, script, False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = RevisionStep('0012', is_upgrade=False)
+revision_map = <alembic.script.revision.RevisionMap object at 0x7f8eee88a450>
+revision = Script('0012', '0011'), is_upgrade = False
+
+    def __init__(
+        self, revision_map: RevisionMap, revision: Script, is_upgrade: bool
+    ) -> None:
+        self.revision_map = revision_map
+        self.revision = revision
+        self.is_upgrade = is_upgrade
+        if is_upgrade:
+            self.migration_fn = revision.module.upgrade
+        else:
+>           self.migration_fn = revision.module.downgrade
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module '0012_vsb_official_sources_py' has no attribute 'downgrade'
+
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:1004: AttributeError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+WARNI [exam_monitor.dbcheck] Database copied to scratch.db.pre-migration-0009-to-0013-20261115T220333Z.bak before upgrading 0009 -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+WARNI [alembic.runtime.migration] 0010: students [1] are linked to more than one user account; created a NON-unique index ix_users_student_id. Resolve the duplicates and run 'python -m app.cli db-audit'.
+WARNI [alembic.runtime.migration] 0010: 1 row(s) in users violate ck_users_role; constraint NOT added (data left untouched). Fix the rows, then run 'python -m app.cli db-audit'.
+WARNI [alembic.runtime.migration] 0010: 1 row(s) in exams violate ck_exams_status; constraint NOT added (data left untouched). Fix the rows, then run 'python -m app.cli db-audit'.
+WARNI [alembic.runtime.migration] 0010: 1 row(s) in results violate ck_results_marks_range; constraint NOT added (data left untouched). Fix the rows, then run 'python -m app.cli db-audit'.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_allotments_exam_student' on 'allotments'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_audit_logs_created_actor' on 'audit_logs'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_auth_sessions_active_user' on 'auth_sessions'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_exams_date_status' on 'exams'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_results_student_exam' on 'results'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_security_events_created_type' on 'security_events'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_students_department_year' on 'students'
+INFO  [alembic.autogenerate.compare.constraints] Detected removed index 'ix_users_student_id' on 'users'
+INFO  [alembic.autogenerate.compare.constraints] Detected added index 'uq_users_student_id' on '('student_id',)'
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+__________ test_downgrade_then_upgrade_round_trip_keeps_data[sqlite] ___________
+
+scratch_url = 'sqlite:////tmp/pytest-of-root/pytest-0/test_downgrade_then_upgrade_ro0/scratch.db'
+
+    def test_downgrade_then_upgrade_round_trip_keeps_data(scratch_url):
+        with use_database(scratch_url) as eng:
+            at_previous_schema(scratch_url)
+            tables = seed_previous_schema(eng)
+            dbcheck.migrate()
+>           command.downgrade(dbcheck.alembic_config(scratch_url), PREVIOUS_HEAD)
+
+tests/test_phase8_database.py:386: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../venv/lib/python3.12/site-packages/alembic/command.py:534: in downgrade
+    script.run_env()
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:550: in run_env
+    util.load_python_file(self.dir, "env.py")
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:114: in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:132: in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:995: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+migrations/env.py:66: in <module>
+    run_migrations_online()
+migrations/env.py:60: in run_migrations_online
+    context.run_migrations()
+<string>:8: in run_migrations
+    ???
+../../../venv/lib/python3.12/site-packages/alembic/runtime/environment.py:970: in run_migrations
+    self.get_context().run_migrations(**kw)
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:604: in run_migrations
+    for step in self._migrations_fn(heads, self):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/command.py:523: in downgrade
+    return script._downgrade_revs(revision, rev)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:441: in _downgrade_revs
+    migration.MigrationStep.downgrade_from_script(
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:968: in downgrade_from_script
+    return RevisionStep(revision_map, script, False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = RevisionStep('0012', is_upgrade=False)
+revision_map = <alembic.script.revision.RevisionMap object at 0x7f8eee46d490>
+revision = Script('0012', '0011'), is_upgrade = False
+
+    def __init__(
+        self, revision_map: RevisionMap, revision: Script, is_upgrade: bool
+    ) -> None:
+        self.revision_map = revision_map
+        self.revision = revision
+        self.is_upgrade = is_upgrade
+        if is_upgrade:
+            self.migration_fn = revision.module.upgrade
+        else:
+>           self.migration_fn = revision.module.downgrade
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: module '0012_vsb_official_sources_py' has no attribute 'downgrade'
+
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:1004: AttributeError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+WARNI [exam_monitor.dbcheck] Database copied to scratch.db.pre-migration-0009-to-0013-20261115T220334Z.bak before upgrading 0009 -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+_____ test_failed_migration_leaves_database_at_last_good_revision[sqlite] ______
+
+self = <alembic.script.base.ScriptDirectory object at 0x7f8eeec59250>
+ancestor = 'Destination %(end)s is not a valid upgrade target from current head(s)'
+multiple_heads = "Multiple head revisions are present for given argument 'head'; please specify a specific target revision, '<branchname>@head' to narrow to a specific head, or 'heads' for all heads"
+start = None, end = 'head', resolution = None
+
+    @contextmanager
+    def _catch_revision_errors(
+        self,
+        ancestor: str | None = None,
+        multiple_heads: str | None = None,
+        start: str | None = None,
+        end: str | None = None,
+        resolution: str | None = None,
+    ) -> Iterator[None]:
+        try:
+>           yield
+
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:207: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:426: in _upgrade_revs
+    for script in reversed(list(revs))
+                           ^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/revision.py:807: in iterate_revisions
+    revisions, heads = fn(
+../../../venv/lib/python3.12/site-packages/alembic/script/revision.py:1440: in _collect_upgrade_revisions
+    for rev in self._parse_upgrade_target(
+../../../venv/lib/python3.12/site-packages/alembic/script/revision.py:1227: in _parse_upgrade_target
+    return self.get_revisions(target)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/revision.py:537: in get_revisions
+    resolved_id, branch_label = self._resolve_revision_number(id_)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/revision.py:771: in _resolve_revision_number
+    current_head = self.get_current_head(branch_label)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <alembic.script.revision.RevisionMap object at 0x7f8eee5315b0>
+branch_label = None
+
+    def get_current_head(self, branch_label: str | None = None) -> str | None:
+        """Return the current head revision.
+    
+        If the script directory has multiple heads
+        due to branching, an error is raised;
+        :meth:`.ScriptDirectory.get_heads` should be
+        preferred.
+    
+        :param branch_label: optional branch name which will limit the
+         heads considered to those which include that branch_label.
+    
+        :return: a string revision number.
+    
+        .. seealso::
+    
+            :meth:`.ScriptDirectory.get_heads`
+    
+        """
+        current_heads: Sequence[str] = self.heads
+        if branch_label:
+            current_heads = self.filter_for_lineage(
+                current_heads, branch_label
+            )
+        if len(current_heads) > 1:
+>           raise MultipleHeads(
+                current_heads,
+                "%s@head" % branch_label if branch_label else "head",
+            )
+E           alembic.script.revision.MultipleHeads: Multiple heads are present for given argument 'head'; 0013, 0099
+
+../../../venv/lib/python3.12/site-packages/alembic/script/revision.py:501: MultipleHeads
+
+The above exception was the direct cause of the following exception:
+
+scratch_url = 'sqlite:////tmp/pytest-of-root/pytest-0/test_failed_migration_leaves_d0/scratch.db'
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_failed_migration_leaves_d0')
+
+    def test_failed_migration_leaves_database_at_last_good_revision(scratch_url, tmp_path):
+        with use_database(scratch_url) as eng:
+            dbcheck.migrate()
+            with eng.begin() as c:
+                c.execute(text("INSERT INTO students (id, register_number, full_name, department, year, active) "
+                               "VALUES (1,:r,'Keep Me','ECE',1,:a)"), {"r": REG1, "a": True})
+            cfg = dbcheck.alembic_config(scratch_url)
+            cfg.set_main_option("script_location", str(_failing_script_dir(tmp_path)))
+            with pytest.raises(RuntimeError, match="simulated failure"):
+>               command.upgrade(cfg, "head")
+
+tests/test_phase8_database.py:418: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../venv/lib/python3.12/site-packages/alembic/command.py:487: in upgrade
+    script.run_env()
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:550: in run_env
+    util.load_python_file(self.dir, "env.py")
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:114: in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/util/pyfiles.py:132: in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:995: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+/tmp/pytest-of-root/pytest-0/test_failed_migration_leaves_d0/migrations_with_failure/env.py:66: in <module>
+    run_migrations_online()
+/tmp/pytest-of-root/pytest-0/test_failed_migration_leaves_d0/migrations_with_failure/env.py:60: in run_migrations_online
+    context.run_migrations()
+<string>:8: in run_migrations
+    ???
+../../../venv/lib/python3.12/site-packages/alembic/runtime/environment.py:970: in run_migrations
+    self.get_context().run_migrations(**kw)
+../../../venv/lib/python3.12/site-packages/alembic/runtime/migration.py:604: in run_migrations
+    for step in self._migrations_fn(heads, self):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/command.py:476: in upgrade
+    return script._upgrade_revs(revision, rev)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:414: in _upgrade_revs
+    with self._catch_revision_errors(
+/usr/lib/python3.12/contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <alembic.script.base.ScriptDirectory object at 0x7f8eeec59250>
+ancestor = 'Destination %(end)s is not a valid upgrade target from current head(s)'
+multiple_heads = "Multiple head revisions are present for given argument 'head'; please specify a specific target revision, '<branchname>@head' to narrow to a specific head, or 'heads' for all heads"
+start = None, end = 'head', resolution = None
+
+    @contextmanager
+    def _catch_revision_errors(
+        self,
+        ancestor: str | None = None,
+        multiple_heads: str | None = None,
+        start: str | None = None,
+        end: str | None = None,
+        resolution: str | None = None,
+    ) -> Iterator[None]:
+        try:
+            yield
+        except revision.RangeNotAncestorError as rna:
+            if start is None:
+                start = cast(Any, rna.lower)
+            if end is None:
+                end = cast(Any, rna.upper)
+            if not ancestor:
+                ancestor = (
+                    "Requested range %(start)s:%(end)s does not refer to "
+                    "ancestor/descendant revisions along the same branch"
+                )
+            ancestor = ancestor % {"start": start, "end": end}
+            raise util.CommandError(ancestor) from rna
+        except revision.MultipleHeads as mh:
+            if not multiple_heads:
+                multiple_heads = (
+                    "Multiple head revisions are present for given "
+                    "argument '%(head_arg)s'; please "
+                    "specify a specific target revision, "
+                    "'<branchname>@%(head_arg)s' to "
+                    "narrow to a specific head, or 'heads' for all heads"
+                )
+            multiple_heads = multiple_heads % {
+                "head_arg": end or mh.argument,
+                "heads": util.format_as_comma(mh.heads),
+            }
+>           raise util.CommandError(multiple_heads) from mh
+E           alembic.util.exc.CommandError: Multiple head revisions are present for given argument 'head'; please specify a specific target revision, '<branchname>@head' to narrow to a specific head, or 'heads' for all heads
+
+../../../venv/lib/python3.12/site-packages/alembic/script/base.py:233: CommandError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+------------------------------ Captured log call -------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume non-transactional DDL.
+_________________ test_concurrent_migrations_run_once[sqlite] __________________
+
+scratch_url = 'sqlite:////tmp/pytest-of-root/pytest-0/test_concurrent_migrations_run0/scratch.db'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8eefddee10>
+
+    def test_concurrent_migrations_run_once(scratch_url, monkeypatch):
+        calls = []                                   # every real schema build: ordered upgrade OR PostgreSQL bootstrap
+        real_upgrade, real_boot = dbcheck.command.upgrade, dbcheck._bootstrap_postgresql
+        monkeypatch.setattr(dbcheck.command, "upgrade", lambda *a, **k: (calls.append("upgrade"), real_upgrade(*a, **k))[1])
+        monkeypatch.setattr(dbcheck, "_bootstrap_postgresql", lambda *a, **k: (calls.append("bootstrap"), real_boot(*a, **k))[1])
+        with use_database(scratch_url) as eng:
+            results, errors = [], []
+            barrier = threading.Barrier(4)
+    
+            def worker():
+                try:
+                    barrier.wait()
+                    results.append(dbcheck.migrate())
+                except Exception as exc:       # noqa: BLE001
+                    errors.append(exc)
+            threads = [threading.Thread(target=worker) for _ in range(4)]
+            [t.start() for t in threads]
+            [t.join(120) for t in threads]
+>           assert errors == [] and results == [HEAD] * 4
+E           AssertionError: assert ([] == []
+E             
+E             Use -v to get more diff and ['0013', '001...0013', '0013'] == ['0010', '001...0010', '0010']
+E             
+E             At index 0 diff: '0013' != '0010'
+E             Use -v to get more diff)
+
+tests/test_phase8_database.py:446: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+------------------------------ Captured log call -------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume non-transactional DDL.
+_________________ test_upgrade_of_a_real_phase71_database_file _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-0/test_upgrade_of_a_real_phase710')
+
+    def test_upgrade_of_a_real_phase71_database_file(tmp_path):
+        """tests/fixtures/phase71_release.sqlite3 was produced by the untouched Phase 7.1 code (its own migrations and ORM):
+        30 students, accounts, 3 exams, a verified hall with 40 seats, 30 allotments, 10 published results, announcement,
+        audit row, notification. It is upgraded as a COPY, exactly like an installed system would be."""
+        live = tmp_path / "exam_monitor.db"
+        shutil.copy(REAL_RELEASE_DB, live)
+        before = _dump_all(live)
+        assert sum(len(v) for v in before.values()) > 100 and len(before["allotments"]) == 30
+        con = sqlite3.connect(live)
+        assert con.execute("SELECT version_num FROM alembic_version").fetchone()[0] == PREVIOUS_HEAD
+        con.close()
+        url = "sqlite:///" + live.as_posix()
+        with use_database(url) as eng:
+            structure_before = structure(eng)
+>           assert dbcheck.migrate() == HEAD
+E           AssertionError: assert '0013' == '0010'
+E             
+E             - 0010
+E             ?    ^
+E             + 0013
+E             ?    ^
+
+tests/test_phase8_database.py:488: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+WARNI [exam_monitor.dbcheck] Database copied to exam_monitor.db.pre-migration-0009-to-0013-20261115T220335Z.bak before upgrading 0009 -> 0013
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+------------------------------ Captured log call -------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume non-transactional DDL.
+WARNING  exam_monitor.dbcheck:dbcheck.py:144 Database copied to exam_monitor.db.pre-migration-0009-to-0013-20261115T220335Z.bak before upgrading 0009 -> 0013
+_____________ test_released_migrations_are_byte_for_byte_unchanged _____________
+
+    def test_released_migrations_are_byte_for_byte_unchanged():
+        import hashlib
+        for name, expected in RELEASED_MIGRATION_SHA256.items():
+            actual = hashlib.sha256((BACKEND / "migrations" / "versions" / name).read_bytes()).hexdigest()
+            assert actual == expected, f"{name} was edited. Released migrations are history - add a new revision instead."
+        on_disk = {f.name for f in (BACKEND / "migrations" / "versions").glob("00*.py")}
+>       assert on_disk == set(RELEASED_MIGRATION_SHA256) | {"0010_schema_hardening.py"}
+E       AssertionError: assert {'0001_baseli...sing.py', ...} == {'0001_baseli...sing.py', ...}
+E         
+E         Extra items in the left set:
+E         '0013_vsb_allocation_workflow.py'
+E         '0012_vsb_official_sources.py'
+E         '0011_phase83_query_indexes.py'
+E         Use -v to get more diff
+
+tests/test_phase8_database.py:548: AssertionError
+__________________ test_migration_chain_is_linear_and_ordered __________________
+
+    def test_migration_chain_is_linear_and_ordered():
+        from alembic.script import ScriptDirectory
+        script = ScriptDirectory.from_config(dbcheck.alembic_config())
+>       assert script.get_heads() == [HEAD]
+E       AssertionError: assert ['0013'] == ['0010']
+E         
+E         At index 0 diff: '0013' != '0010'
+E         Use -v to get more diff
+
+tests/test_phase8_database.py:554: AssertionError
+_____________ test_missing_seat_cannot_be_approved_until_corrected _____________
+
+client = <starlette.testclient.TestClient object at 0x7f8eee780140>
+admin = {'Authorization': 'Bearer <redacted-test-token>'}
+staged = ({'id': 1, 'exam_date': '2026-11-14', 'session': 'FN', 'exam_name': 'HALL SEATING FOR THE END SEMESTER EXAMINATIONS - ..., <app.doc_models.DocumentVersion object at 0x7f8ef62ffaa0>, <app.doc_models.DocumentVersion object at 0x7f8ef62ff830>)
+db = <sqlalchemy.orm.session.Session object at 0x7f8eee7805c0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ef62fdf10>
+
+    def test_missing_seat_cannot_be_approved_until_corrected(client, admin, staged, db, monkeypatch):
+        b, hv, sv = staged
+        seats = _seats()
+        gone = seats.pop(28)
+        pages = {sv.id: [FS.build_page(0, "MB III 02", seats, SUBS)]}
+        ht = _hall_text(); cut = FH.HEADER + "[23EET"
+        pages[hv.id] = [PageInput(0, ht.split(cut)[0]), PageInput(1, cut + ht.split(cut)[1])]
+        monkeypatch.setattr(svc, "load_pages", lambda _db, v: pages[v.id])
+        nb = client.post("/api/vsb-allocation/batches/build", json={"hall_version_id": hv.id, "seat_version_id": sv.id}, headers=admin).json()[0]
+>       assert nb["id"] != b["id"]                      # the earlier draft was replaced
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 1 != 1
+
+tests/test_vsb_alloc_workflow.py:89: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+------------------------------ Captured log setup ------------------------------
+INFO     alembic.runtime.migration:migration.py:205 Context impl SQLiteImpl.
+INFO     alembic.runtime.migration:migration.py:208 Will assume non-transactional DDL.
+__________________ test_pdf_round_trip_with_real_coordinates ___________________
+
+    def test_pdf_round_trip_with_real_coordinates():
+>       import pdfplumber
+E       ModuleNotFoundError: No module named 'pdfplumber'
+
+tests/vsb/test_vsb_seat_parser.py:81: ModuleNotFoundError
+=============================== warnings summary ===============================
+../../../venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  <workspace>/:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_phase6_mail.py: 33 warnings
+  <workspace>/:372: UserWarning: Requiring AUTH while not requiring TLS can lead to security vulnerabilities!
+    warn("Requiring AUTH while not requiring TLS "
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_migrations.py::test_upgrade_head_matches_models_exactly - A...
+FAILED tests/test_migrations.py::test_downgrade_to_base_and_back - AttributeE...
+FAILED tests/test_phase4_security.py::test_0007_upgrade_keeps_existing_accounts
+FAILED tests/test_phase5_frontend_contract.py::test_every_api_path_used_by_the_frontend_exists
+FAILED tests/test_phase6_workflows.py::test_migration_0009_keeps_existing_announcements_and_downgrades
+FAILED tests/test_phase8_database.py::test_fresh_database_reaches_head_and_matches_models[sqlite]
+FAILED tests/test_phase8_database.py::test_upgrade_from_previous_schema_preserves_every_row[sqlite]
+FAILED tests/test_phase8_database.py::test_upgrade_makes_a_consistent_safety_copy_of_a_sqlite_file
+FAILED tests/test_phase8_database.py::test_legacy_starter_database_is_stamped_then_upgraded
+FAILED tests/test_phase8_database.py::test_dirty_legacy_data_is_kept_and_unsatisfiable_constraints_are_skipped[sqlite]
+FAILED tests/test_phase8_database.py::test_skipped_constraints_can_be_reapplied_after_the_data_is_corrected[sqlite]
+FAILED tests/test_phase8_database.py::test_downgrade_then_upgrade_round_trip_keeps_data[sqlite]
+FAILED tests/test_phase8_database.py::test_failed_migration_leaves_database_at_last_good_revision[sqlite]
+FAILED tests/test_phase8_database.py::test_concurrent_migrations_run_once[sqlite]
+FAILED tests/test_phase8_database.py::test_upgrade_of_a_real_phase71_database_file
+FAILED tests/test_phase8_database.py::test_released_migrations_are_byte_for_byte_unchanged
+FAILED tests/test_phase8_database.py::test_migration_chain_is_linear_and_ordered
+FAILED tests/test_vsb_alloc_workflow.py::test_missing_seat_cannot_be_approved_until_corrected
+FAILED tests/vsb/test_vsb_seat_parser.py::test_pdf_round_trip_with_real_coordinates

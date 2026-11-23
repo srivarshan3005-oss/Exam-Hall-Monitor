@@ -1,0 +1,16 @@
+$ python -m app.cli migrate
+Empty PostgreSQL database initialised directly at revision 0013
+Database is at revision 0013
+$ python -m app.cli db-audit
+Revision: 0013   (application needs 0013)
+Database schema OK
+$ alembic downgrade 0011
+revision after downgrade: 0011
+$ python -m app.cli migrate (re-upgrade)
+Database is at revision 0013
+vsb_alloc_batches
+vsb_alloc_edits
+vsb_alloc_issues
+vsb_alloc_records
+vsb_crawl_runs
+vsb_source_links

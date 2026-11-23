@@ -1,0 +1,13 @@
+OK app/static/js/core.js
+OK app/static/js/main.js
+OK app/static/js/pages-admin.js
+OK app/static/js/pages-dash.js
+OK app/static/js/pages-docs.js
+OK app/static/js/pages-exams.js
+OK app/static/js/pages-notify.js
+OK app/static/js/pages-people.js
+OK app/static/js/pages-seating.js
+OK app/static/js/pages-vsb-alloc.js
+OK app/static/js/pages-vsb.js
+OK app/static/js/pages-workflow.js
+OK tests/e2e_jsdom/e2e.js

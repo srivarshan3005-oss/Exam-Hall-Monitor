@@ -1,0 +1,36 @@
+# Single-container LOCAL / small-site deployment: SQLite, no TLS proxy, no external database.
+#   docker compose -f docker-compose.local.yml up --build -d
+#   student search : http://localhost:8000/portal/        management : http://localhost:8000/
+# First administrator:  docker compose -f docker-compose.local.yml exec app python -m app.cli create-admin --username admin
+# For internet-facing production use docker-compose.yml (PostgreSQL + nginx + TLS) and read docs/DEPLOYMENT.md.
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: development            # development: SECRET_KEY is generated below if you do not set one
+      SECRET_KEY: ${SECRET_KEY:-local-only-change-me-0123456789-abcdefghijklmnopqrstuvwxyz}
+      DATABASE_URL: sqlite:////data/exam_monitor.db
+      DOCUMENT_STORAGE_DIR: /data/documents
+      BACKUP_DIR: /data/backups
+      LOG_DIR: /data/logs
+      SEED_DEMO: "false"
+      VSB_POLL_MINUTES: ${VSB_POLL_MINUTES:-5}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - exam_data:/data
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+volumes:
+  exam_data:

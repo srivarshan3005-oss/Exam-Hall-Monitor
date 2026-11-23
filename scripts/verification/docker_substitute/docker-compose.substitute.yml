@@ -1,0 +1,12 @@
+# TEST-ONLY override. Replaces the pinned official images with LOCAL SUBSTITUTES so the real compose file can run where
+# Docker Hub is unreachable. It is never used by the production configuration and must never be used in production.
+services:
+  db:
+    image: local-substitute/postgres-ubuntu:16
+  app:
+    image: local-substitute/exam-monitor-app:substitute-test
+    build:
+      context: ./backend
+      dockerfile: ../substitute.app.Dockerfile
+  proxy:
+    image: local-substitute/nginx-ubuntu:1.24

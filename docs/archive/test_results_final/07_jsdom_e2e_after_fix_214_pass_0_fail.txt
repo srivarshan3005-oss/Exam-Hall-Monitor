@@ -1,0 +1,19 @@
+INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Baseline: the exact schema created by the 0.1.0 starter (SQLAlchemy create_all).
+INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Security fields, audit columns, unique constraints and the Smart Hall Finder tables.
+INFO  [alembic.runtime.migration] Running upgrade 0002 -> 0003, Add scheduled announcements for the student portal.
+INFO  [alembic.runtime.migration] Running upgrade 0003 -> 0004, Normalized building/block/floor directory and individual hall seats.
+INFO  [alembic.runtime.migration] Running upgrade 0004 -> 0005, Phase 2: subject catalogue, academic years/terms, eligibility, allocation plans and history.
+INFO  [alembic.runtime.migration] Running upgrade 0005 -> 0006, Phase 3: official document metadata, extracted text, timetable extraction, edit trail, processing history.
+INFO  [alembic.runtime.migration] Running upgrade 0006 -> 0007, Phase 4: account lifecycle columns, server-side sessions, one-time tokens, security events.
+INFO  [alembic.runtime.migration] Running upgrade 0007 -> 0008, Phase 4: seating-allotment PDF import staging table.
+INFO  [alembic.runtime.migration] Running upgrade 0008 -> 0009, Phase 6: notifications, preferences, e-mail delivery log, templates, announcement targeting.
+INFO  [alembic.runtime.migration] Running upgrade 0009 -> 0010, Phase 8.1: schema hardening - missing foreign-key indexes, one account per student, CHECK constraints.
+INFO  [alembic.runtime.migration] Running upgrade 0010 -> 0011, Phase 8.3 query-path indexes (additive, data-preserving).
+INFO  [alembic.runtime.migration] Running upgrade 0011 -> 0012, VSB official-source integration: discovered PDF links and discovery-run history.
+INFO  [alembic.runtime.migration] Running upgrade 0012 -> 0013, VSB hall/seat allocation workflow: batches, proposed records, issues and the correction trail.
+warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.
+   doc review_status: approved | counts: {"approved":3}
+
+E2E (jsdom): 214 checks passed, 0 failed

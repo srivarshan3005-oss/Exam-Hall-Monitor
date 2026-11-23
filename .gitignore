@@ -1,0 +1,60 @@
+# secrets and local data - never commit
+.env
+backend/.env.production
+*.pem
+*.key
+*.db
+*.sqlite3
+backend/storage/
+backend/uploads/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk
+*.aab
+
+# Runtime documents and backups
+backend/backups/
+backend/.run.pid
+
+backend/logs/
+
+backend/outbox/
+
+# front-end e2e tooling
+node_modules/
+
+android/**/build/
+*.jks
+*.keystore
+
+# Release packaging / local deployment material
+*.zip
+*.tar
+*.tar.gz
+backend/.env.*
+!backend/.env.example
+!backend/.env.production.example
+deploy/certs/*
+!deploy/certs/.gitkeep
+
+# Synthetic historical migration fixture used by backend/tests (not a runtime database)
+!backend/tests/fixtures/phase71_release.sqlite3

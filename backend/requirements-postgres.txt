@@ -1,0 +1,4 @@
+# Optional: PostgreSQL support (Phase 8.1). Install only if DATABASE_URL points at PostgreSQL:
+#   pip install -r requirements.txt -r requirements-postgres.txt
+# Tested with psycopg 3.3.9 against PostgreSQL 16.15. The older "psycopg2" driver is NOT used.
+psycopg[binary]>=3.2,<4

@@ -1,0 +1,1 @@
+{ "name": "exam-monitor-e2e-jsdom", "private": true, "version": "1.0.0", "description": "DOM-level (jsdom) smoke tests of the web front end against a live server. NOT a real browser.", "dependencies": { "jsdom": "^31.0.0" } }

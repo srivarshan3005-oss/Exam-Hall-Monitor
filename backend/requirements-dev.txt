@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8.3.4,<10
+httpx>=0.28,<1
+aiosmtpd>=1.4,<2        # Phase 6 tests: a real local SMTP server for delivery tests
+pdfplumber>=0.11,<1        # tests only: reads real PDF coordinates back to validate generated seating PDFs

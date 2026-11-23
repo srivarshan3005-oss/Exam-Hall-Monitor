@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Enter your register number to see your examination date, session, subject, hall, seat and the original allotment page.">
+<title>Exam Allotment Portal | Hall &amp; Seat Finder</title>
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<a class="skip" href="#regInput">Skip to search</a>
+<header class="top">
+  <div class="wrap">
+    <div id="themes" class="themes" role="group" aria-label="Colour theme"></div>
+    <span class="eyebrow">Semester Examination Monitor</span>
+    <h1>Exam Allotment Portal</h1>
+    <p class="sub">Real-Time Examination Hall &amp; Seating Arrangement Finder</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="published" class="card pubpanel" aria-label="Published examination allotments" hidden></section>
+
+  <section class="card search" aria-label="Search">
+    <form id="searchForm" autocomplete="off" novalidate>
+      <label for="regInput">Register number</label>
+      <div class="row">
+        <input id="regInput" name="reg" inputmode="text" maxlength="24" placeholder="e.g. 922523105015" autocapitalize="characters" spellcheck="false" aria-describedby="regMsg">
+        <button type="submit" id="searchBtn" class="btn primary">Find Allotment</button>
+      </div>
+      <p id="regMsg" class="msg" role="alert"></p>
+      <p class="hint">Enter your university register number to view your allocated examination hall &amp; seat arrangement.</p>
+    </form>
+    <div class="syncbar" aria-live="polite">
+      <span id="syncText">Checking the official sources&hellip;</span>
+      <span class="spacer"></span>
+      <button type="button" id="refreshBtn" class="btn small" hidden>Refresh now</button>
+    </div>
+  </section>
+
+  <div id="banner" class="banner" hidden role="status"></div>
+
+  <section id="stateWelcome" class="card center">
+    <h2>Find your examination hall and seat</h2>
+    <p>Start typing your register number. As soon as it is complete, every examination published for you &mdash; date, session, subject, hall and seat &mdash;
+       is shown with your seat allotment page. No need to press Search.</p>
+  </section>
+  <section id="stateLoading" class="card center" hidden><div class="spinner" aria-hidden="true"></div><p>Looking up your records&hellip;</p></section>
+  <section id="stateError" class="card center err" hidden role="alert"><h2 id="errTitle">Something went wrong</h2><p id="errText"></p>
+    <button type="button" id="retryBtn" class="btn primary">Try again</button></section>
+  <section id="stateEmpty" class="card center" hidden><h2 id="emptyTitle"></h2><p id="emptyText"></p></section>
+
+  <section id="results" hidden aria-live="polite">
+    <div class="resulthead">
+      <div class="regchip"><span class="label">REG:</span> <b id="resReg" class="mono"></b> <span id="resCount" class="count"></span></div>
+      <div class="actions">
+        <button type="button" id="slipBtn" class="btn small">&#128424;&#65039; Print Slip</button>
+      </div>
+    </div>
+    <div id="cards"></div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>Automated Examination Notice Watcher &copy; 2026 &middot; Real-Time Allotment Portal. Always confirm with the official notice; the page images are the original official pages.</p>
+</footer>
+
+<div id="viewer" class="viewer" hidden role="dialog" aria-modal="true" aria-label="Original page viewer">
+  <div class="vbar">
+    <b id="vTitle"></b><span class="spacer"></span>
+    <button type="button" class="btn small" id="vOut" aria-label="Zoom out">&minus;</button>
+    <span id="vZoom" class="mono">100%</span>
+    <button type="button" class="btn small" id="vIn" aria-label="Zoom in">+</button>
+    <button type="button" class="btn small" id="vFit">Fit width</button>
+    <label class="chk"><input type="checkbox" id="vHl" checked> Highlight my number</label>
+    <a class="btn small" id="vDown" download>Download PNG</a>
+    <a class="btn small" id="vPdf" target="_blank" rel="noopener noreferrer">Official PDF</a>
+    <button type="button" class="btn small primary" id="vClose">Close</button>
+  </div>
+  <div class="vbody" id="vBody"><img id="vImg" alt="Original official PDF page"></div>
+</div>
+<script src="portal.js"></script>
+</body>
+</html>
