@@ -45,6 +45,11 @@ CONFLICT_FLAGS = frozenset({"conflicting_halls", "hall_mismatch", "subject_misma
 REVIEW_FLAGS = (ERROR_FLAGS - CONFLICT_FLAGS - {"missing_in_seating_pdf", "missing_in_hall_pdf"}) | {
     "seat_from_text_order", "ocr_text", "ocr_ambiguous"}
 
+# Flags that cast doubt on the HALL itself. Without any of them, a hall named identically by the hall list and the seat sheet is shown
+# even when the seat still needs a human check (the seat stays hidden).
+HALL_DOUBT_FLAGS = frozenset({"conflicting_halls", "hall_mismatch", "hall_check_failed", "hall_missing", "hall_label_variant",
+                              "hall_capacity_exceeded", "source_documents_disagree", "source_not_official", "provenance_mismatch"})
+
 _lock = threading.RLock()
 _parse_cache: "OrderedDict[tuple, tuple]" = OrderedDict()
 _CACHE_MAX = 12
@@ -72,6 +77,14 @@ def split_programme(label: str | None) -> tuple[str | None, str | None]:
 
 def weekday_name(d: date) -> str:
     return ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")[d.weekday()]
+
+
+def _agreed_hall(r, flags) -> str | None:
+    """The hall when BOTH official documents name the same hall and nothing doubts it; otherwise None."""
+    a, b = (r.hall_pdf_hall or "").strip().upper(), (r.seat_pdf_hall or "").strip().upper()
+    if a and a == b and not (set(flags) & HALL_DOUBT_FLAGS):
+        return r.hall_pdf_hall
+    return None
 
 
 def classify(flags: list[str], *, hall_doc_present: bool, seat_doc_present: bool, has_hall: bool, has_seat: bool) -> str:
@@ -296,11 +309,12 @@ def rebuild_index(db: Session) -> dict:
             if status == "MANUAL_REVIEW":
                 unverified = {"hall": r.hall or r.hall_pdf_hall or r.seat_pdf_hall, "seat": seat_value}
                 hall_value, seat_value = None, None
+                hall_value = _agreed_hall(r, flags)
             elif status == "HALL_ONLY":
                 seat_value = None
             elif status == "CONFLICT":
                 unverified = {"hall_pdf_hall": r.hall_pdf_hall, "seat_pdf_hall": r.seat_pdf_hall, "seat": seat_value}
-                hall_value, seat_value = None, None
+                hall_value, seat_value = _agreed_hall(r, flags), None
             notes = list(r.notes) + extra_notes.get(r.register_number, [])
             if unverified is not None:
                 notes.append("unverified:" + json.dumps(unverified, sort_keys=True))

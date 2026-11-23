@@ -22,6 +22,10 @@ on:
         description: "Re-parse every stored PDF and rebuild the index"
         type: boolean
         default: false
+      reg:
+        description: "Register number to explain in the run summary (why it needs verification)"
+        type: string
+        default: "922525106326"
 
 concurrency:
   group: pages-publish
@@ -48,6 +52,8 @@ jobs:
       SCHEDULER_ENABLED: "false"
       VSB_AUTO_DISCOVER_ENABLED: "true"
       SESSION_TIMES: "FN=09:30-12:30,AN=13:30-16:30"
+      # Show only recent exams (today minus this many days). Older exam series, such as May 2026, are hidden, not deleted.
+      PORTAL_PAST_DAYS: "10"
     steps:
       - uses: actions/checkout@v4
 
@@ -81,6 +87,19 @@ jobs:
         working-directory: backend
         continue-on-error: true
         run: python -m app.cli run-cycle ${{ inputs.rebuild && '--rebuild' || '' }} | tee ../.monitor-state/last-cycle.json
+
+      - name: Explain records that need verification (see the run Summary)
+        working-directory: backend
+        continue-on-error: true
+        run: |
+          {
+            echo "### Why records need verification"
+            echo '```'
+            python scripts/why_review.py
+            echo
+            python scripts/why_review.py "${{ inputs.reg || '922525106326' }}"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Save state
         if: always()
