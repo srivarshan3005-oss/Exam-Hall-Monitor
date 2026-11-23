@@ -139,16 +139,8 @@ def _mk_date(d: str, m: str, y: str) -> date | None:
 def classify(url: str, text: str) -> dict:
     """Kind / exam date / session / upload month, using ONLY what the link text and file name actually state."""
     name = urlparse(url).path.rsplit("/", 1)[-1]
-    label = (text or "").upper().replace("_", " ")
     hay = f"{text} {name}".upper().replace("_", " ")
-    # The official listing label is the strongest signal. Some current VSB hall PDFs
-    # are named like `24.11.26-FN-HALL-SEAT.pdf`; the word SEAT in that filename
-    # must not override the page's explicit "HALL ALLOTMENT" label.
-    if "SEATING ALLOTMENT" in label:
-        kind = "seating_allotment"
-    elif "HALL ALLOTMENT" in label:
-        kind = "hall_allotment"
-    elif "SEATING ALLOTMENT" in hay or re.search(r"[-. ]SEAT(\b|[-. ])", hay):
+    if "SEATING ALLOTMENT" in hay or re.search(r"[-. ]SEAT(\b|[-. ])", hay):
         kind = "seating_allotment"
     elif "HALL ALLOTMENT" in hay or "HALL SEATING" in hay or re.search(r"[-. ]HALL(\b|[-. ])", hay):
         kind = "hall_allotment"

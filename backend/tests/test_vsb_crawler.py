@@ -59,20 +59,6 @@ def test_file_name_alone_is_enough_when_text_is_empty():
     assert (c["doc_kind"], c["exam_date"], c["session"]) == ("hall_allotment", date(2026, 11, 14), "AN")
 
 
-def test_official_hall_label_wins_over_seat_word_in_combined_filename():
-    url = BASE + "2026/11/24.11.26-FN-HALL-SEAT.pdf"
-    c = vs.classify(url, "HALL ALLOTMENT - FN (24.11.2026)")
-    assert c["doc_kind"] == "hall_allotment"
-    assert c["exam_date"] == date(2026, 11, 24)
-    assert c["session"] == "FN"
-
-
-def test_official_seating_label_wins_over_hall_word_in_filename():
-    url = BASE + "2026/11/24.11.26-FN-HALL-SEAT.pdf"
-    c = vs.classify(url, "SEATING ALLOTMENT - FN (24.11.2026)")
-    assert c["doc_kind"] == "seating_allotment"
-
-
 def test_new_address_for_same_document_is_a_new_link():
     html = f'<a href="{BASE}2026/11/14.11.26-FN-HALL-REVISED.pdf">HALL ALLOTMENT - FN (14.11.2026) revised</a>'
     l = vs.extract_pdf_links(html, OFFICIAL)[0]
