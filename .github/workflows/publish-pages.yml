@@ -51,6 +51,8 @@ jobs:
       LOG_DIR: ${{ github.workspace }}/.monitor-state/logs
       SCHEDULER_ENABLED: "false"
       VSB_AUTO_DISCOVER_ENABLED: "true"
+      # The default is 40 PDFs per run (made for a laptop scanning every 5 minutes). A 30-minute cloud run must fetch them all.
+      VSB_MAX_DOWNLOADS_PER_RUN: "600"
       SESSION_TIMES: "FN=09:30-12:30,AN=13:30-16:30"
       # Show only recent exams (today minus this many days). Older exam series, such as May 2026, are hidden, not deleted.
       PORTAL_PAST_DAYS: "10"
