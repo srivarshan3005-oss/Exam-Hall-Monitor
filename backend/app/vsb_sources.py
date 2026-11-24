@@ -430,6 +430,27 @@ def _note_replacements(db: Session) -> None:
                     g.note = f"Possibly replaced by a newer address on the official page (link #{live[0].id})."[:500]
 
 
+def merge_discovery_candidates(candidates):
+    """Merge duplicate URLs while retaining the strongest official listing label."""
+    merged = {}
+    for candidate in candidates:
+        current = merged.get(candidate.url)
+        if current is None:
+            merged[candidate.url] = candidate
+            continue
+        label = (candidate.text or "").upper().replace("_", " ")
+        has_official_kind = "HALL ALLOTMENT" in label or "SEATING ALLOTMENT" in label
+        if candidate.method == "html" and candidate.text and (current.method != "html" or has_official_kind):
+            current.text = candidate.text
+            current.method = candidate.method
+            current.listing_url = candidate.listing_url
+        elif not current.text and candidate.text:
+            current.text = candidate.text
+            current.method = candidate.method
+            current.listing_url = candidate.listing_url
+    return merged
+
+
 # ----------------------------------------------------------------------------- discovery run
 def run_discovery(db: Session, *, actor: str, trigger: str = "manual", download: bool = True,
                   auto_process=None) -> dict:
@@ -456,24 +477,7 @@ def run_discovery(db: Session, *, actor: str, trigger: str = "manual", download:
         failed_methods = [r for r in col.results if not r.ok and not r.skipped and r.method == "html"]
         if failed_methods:
             notes.append("Some listing pages could not be read this time: " + "; ".join(f"{r.url} ({r.error})" for r in failed_methods)[:600])
-        merged: dict[str, disc.Candidate] = {}
-        for c in col.candidates:
-            have = merged.get(c.url)
-            if have is None:
-                merged[c.url] = c
-                continue
-
-            # Prefer the visible official COE anchor text over a WordPress media
-            # title or sitemap filename. The listing's explicit HALL/SEATING label
-            # is the source of truth when a combined filename contains both words.
-            def authoritative_label(value: str) -> bool:
-                normalized = (value or "").upper().replace("_", " ")
-                return "HALL ALLOTMENT" in normalized or "SEATING ALLOTMENT" in normalized
-
-            if c.method == "html" and c.text and (have.method != "html" or authoritative_label(c.text)):
-                have.text, have.method, have.listing_url = c.text, c.method, c.listing_url
-            elif not have.text and c.text:
-                have.text, have.method, have.listing_url = c.text, c.method, c.listing_url
+        merged = merge_discovery_candidates(col.candidates)
         found = [{"url": c.url, "text": c.text, "listing": c.listing_url} for c in merged.values()]
         run.links_found = len(found)
         if not found:
