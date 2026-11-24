@@ -143,3 +143,49 @@ def test_official_seating_label_wins_over_hall_word_in_filename():
     url = BASE + "2026/11/24.11.26-FN-HALL-SEAT.pdf"
     c = vs.classify(url, "SEATING ALLOTMENT - FN (24.11.2026)")
     assert c["doc_kind"] == "seating_allotment"
+
+
+
+def test_existing_filename_only_link_is_reclassified_from_official_listing_and_reparsed(db, monkeypatch):
+    """A filename-only first discovery must not permanently misclassify an existing PDF."""
+    from app import doc_models as dm
+    from app.vsb_live import discovery as disc
+
+    url = BASE + "2026/11/24.11.26-FN-HALL-SEAT.pdf"
+    doc = dm.OfficialDocument(
+        source_url=url, title="24.11.26 FN HALL SEAT", doc_kind="seating_allotment",
+        exam_date=date(2026, 11, 24), session="FN", origin="crawler", status="active",
+    )
+    db.add(doc)
+    db.flush()
+    version = dm.DocumentVersion(
+        document_id=doc.id, version_no=1, sha256="a" * 64, size_bytes=10,
+        storage_path="24.11.26-FN-HALL-SEAT.pdf", is_current=True,
+    )
+    db.add(version)
+    db.flush()
+    ingest = dm.LiveIngest(version_id=version.id, status="ok", attempts=1, records=84, pages=14)
+    link = dm.VsbSourceLink(
+        url=url, title="24.11.26 FN HALL SEAT", doc_kind="seating_allotment",
+        exam_date=date(2026, 11, 24), session="FN", upload_month="2026-11",
+        listing_url=OFFICIAL, document_id=doc.id, download_status="unchanged",
+    )
+    db.add_all([ingest, link])
+    db.commit()
+
+    col = disc.Collected(
+        candidates=[disc.Candidate(url, "HALL ALLOTMENT - FN (24.11.2026)", "html", OFFICIAL)],
+        results=[disc.MethodResult("html:" + OFFICIAL, "html", OFFICIAL, ok=True, items=1)],
+        pages_read={OFFICIAL},
+    )
+    monkeypatch.setattr(disc, "collect", lambda http, page_url: col)
+
+    result = vs.run_discovery(db, actor="regression-test", trigger="test", download=False)
+    db.refresh(link)
+    db.refresh(doc)
+    db.refresh(ingest)
+
+    assert result["status"] == "ok"
+    assert link.doc_kind == doc.doc_kind == "hall_allotment"
+    assert doc.exam_date == date(2026, 11, 24) and doc.session == "FN"
+    assert ingest.status == "pending" and ingest.attempts == 0 and ingest.error is None
