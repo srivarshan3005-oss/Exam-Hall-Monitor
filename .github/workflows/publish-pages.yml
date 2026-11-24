@@ -34,7 +34,7 @@ on:
       reg:
         description: "Register number to explain in the run summary (why it needs verification)"
         type: string
-        default: "922525106326"
+        default: ""
 
 concurrency:
   group: pages-publish
@@ -123,8 +123,11 @@ jobs:
             echo "### Why records need verification"
             echo '```'
             python scripts/why_review.py
-            echo
-            python scripts/why_review.py "${{ inputs.reg || '922525106326' }}"
+            if [ -n "${{ inputs.reg }}" ]; then
+              echo
+              echo "### Optional requested register number: ${{ inputs.reg }}"
+              python scripts/why_review.py "${{ inputs.reg }}"
+            fi
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
 
