@@ -461,8 +461,19 @@ def run_discovery(db: Session, *, actor: str, trigger: str = "manual", download:
             have = merged.get(c.url)
             if have is None:
                 merged[c.url] = c
+                continue
+
+            # Prefer the visible official COE anchor text over a WordPress media
+            # title or sitemap filename. The listing's explicit HALL/SEATING label
+            # is the source of truth when a combined filename contains both words.
+            def authoritative_label(value: str) -> bool:
+                normalized = (value or "").upper().replace("_", " ")
+                return "HALL ALLOTMENT" in normalized or "SEATING ALLOTMENT" in normalized
+
+            if c.method == "html" and c.text and (have.method != "html" or authoritative_label(c.text)):
+                have.text, have.method, have.listing_url = c.text, c.method, c.listing_url
             elif not have.text and c.text:
-                have.text = c.text
+                have.text, have.method, have.listing_url = c.text, c.method, c.listing_url
         found = [{"url": c.url, "text": c.text, "listing": c.listing_url} for c in merged.values()]
         run.links_found = len(found)
         if not found:
