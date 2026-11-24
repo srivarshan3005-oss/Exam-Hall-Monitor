@@ -129,3 +129,17 @@ def test_scheduled_polling_in_seconds_mode(db, monkeypatch):
     assert not vs.scheduled_due(db, t0 + timedelta(seconds=59)) and vs.scheduled_due(db, t0 + timedelta(seconds=60))
     monkeypatch.setattr(settings, "vsb_poll_seconds", 1)           # clamped up to 15
     assert not vs.scheduled_due(db, t0 + timedelta(seconds=14)) and vs.scheduled_due(db, t0 + timedelta(seconds=15))
+
+
+def test_official_hall_label_wins_over_seat_word_in_combined_filename():
+    url = BASE + "2026/11/24.11.26-FN-HALL-SEAT.pdf"
+    c = vs.classify(url, "HALL ALLOTMENT - FN (24.11.2026)")
+    assert c["doc_kind"] == "hall_allotment"
+    assert c["exam_date"] == date(2026, 11, 24)
+    assert c["session"] == "FN"
+
+
+def test_official_seating_label_wins_over_hall_word_in_filename():
+    url = BASE + "2026/11/24.11.26-FN-HALL-SEAT.pdf"
+    c = vs.classify(url, "SEATING ALLOTMENT - FN (24.11.2026)")
+    assert c["doc_kind"] == "seating_allotment"
