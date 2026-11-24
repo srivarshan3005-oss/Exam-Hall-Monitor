@@ -101,7 +101,10 @@ class _LinkParser(HTMLParser):
             self._href = values.get("href")
             self._attrs = [values.get("title", ""), values.get("aria-label", "")]
             self._text = []
-            self._active_container = self._containers[-1] if self._containers else None
+            self._active_container = next(
+                (c for c in reversed(self._containers) if c["tag"] in {"td", "th", "li", "p", "tr", "article"}),
+                self._containers[-1] if self._containers else None,
+            )
 
     def handle_data(self, data):
         if not data:
