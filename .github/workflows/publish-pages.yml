@@ -14,6 +14,14 @@
 name: Publish student portal (automatic)
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-pages.yml"
+      - "backend/app/vsb_sources.py"
+      - "backend/scripts/publish_gate.py"
+      - "backend/tests/test_vsb_crawler.py"
+      - "backend/tests/test_publish_gate.py"
   schedule:
     # Every 15 minutes, at off-peak minutes (GitHub delays or drops jobs scheduled exactly on :00 / :30 when it is busy).
     - cron: "4,19,34,49 * * * *"
