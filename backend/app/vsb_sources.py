@@ -484,10 +484,49 @@ def run_discovery(db: Session, *, actor: str, trigger: str = "manual", download:
                 run.new_links += 1
             else:
                 link.last_seen_at, link.still_listed, link.listing_url = now(), True, listing
-                if text and link.title != title_for(url, text) and not link.document_id:
+                if text and link.title != title_for(url, text):
                     link.title = title_for(url, text)
                 if link.note and link.note.startswith("Possibly replaced"):
                     link.note = None
+
+                # The same PDF can first be discovered through WordPress media/sitemap
+                # (filename only), then later through the COE listing with its explicit
+                # HALL/SEATING label.  Never let a filename-only first sighting freeze
+                # the wrong kind forever: the official listing label is authoritative.
+                label = (text or "").upper().replace("_", " ")
+                explicit_kind = ("hall_allotment" if "HALL ALLOTMENT" in label else
+                                 "seating_allotment" if "SEATING ALLOTMENT" in label else None)
+                if explicit_kind:
+                    link.doc_kind = explicit_kind
+                    link.exam_date = meta["exam_date"] or link.exam_date
+                    link.session = meta["session"] or link.session
+                    link.upload_month = meta["upload_month"] or link.upload_month
+
+                    existing = (db.get(dm.OfficialDocument, link.document_id) if link.document_id else
+                                db.scalar(select(dm.OfficialDocument).where(dm.OfficialDocument.source_url == url)))
+                    if existing is not None:
+                        link.document_id = existing.id
+                        if existing.doc_kind != explicit_kind:
+                            existing.doc_kind = explicit_kind
+                            existing.exam_date = meta["exam_date"] or existing.exam_date
+                            existing.session = meta["session"] or existing.session
+                            # A prior successful parse used the wrong parser. Requeue the
+                            # current binary so the next cycle reparses it and rebuilds
+                            # every affected register-number lookup, not just one test ID.
+                            versions = db.scalars(select(dm.DocumentVersion).where(
+                                dm.DocumentVersion.document_id == existing.id,
+                                dm.DocumentVersion.is_current == True  # noqa: E712
+                            )).all()
+                            for version in versions:
+                                ingest = db.scalar(select(dm.LiveIngest).where(
+                                    dm.LiveIngest.version_id == version.id))
+                                if ingest is not None:
+                                    ingest.status, ingest.attempts, ingest.error = "pending", 0, None
+                                    ingest.processed_at = None
+                                from .vsb_live.pipeline import forget as forget_live_parse
+                                forget_live_parse(version.id)
+                    elif link.download_status == "skipped" and explicit_kind in AUTO_KINDS:
+                        link.download_status = "discovered"
             link.last_seen_at = now()
         if found:
             # A link counts as removed ONLY when an HTML listing page that carried it was read successfully this run
