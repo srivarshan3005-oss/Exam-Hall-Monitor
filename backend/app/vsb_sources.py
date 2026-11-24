@@ -82,25 +82,55 @@ def coe_page_url() -> str:
 
 
 class _LinkParser(HTMLParser):
+    """Extract link labels plus nearby cell/list context from official notice pages."""
+    _CONTAINERS = {"td", "th", "li", "p", "div", "tr", "article"}
+
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.links: list[tuple[str, str]] = []
         self._href: str | None = None
+        self._attrs: list[str] = []
         self._text: list[str] = []
+        self._containers: list[dict] = []
 
     def handle_starttag(self, tag, attrs):
+        values = dict(attrs)
+        if tag in self._CONTAINERS:
+            self._containers.append({"tag": tag, "text": [], "links": []})
         if tag == "a":
-            self._href = dict(attrs).get("href")
+            self._href = values.get("href")
+            self._attrs = [values.get("title", ""), values.get("aria-label", "")]
             self._text = []
+            self._active_container = self._containers[-1] if self._containers else None
 
     def handle_data(self, data):
+        if not data:
+            return
+        for container in self._containers:
+            container["text"].append(data)
         if self._href is not None:
             self._text.append(data)
 
     def handle_endtag(self, tag):
         if tag == "a" and self._href is not None:
-            self.links.append((self._href, " ".join("".join(self._text).split())))
+            label = " ".join(" ".join(self._attrs + [" ".join(self._text)]).split())
+            record = {"href": self._href, "label": label, "context": ""}
+            self.links.append(record)
+            if self._active_container is not None:
+                self._active_container["links"].append(record)
             self._href = None
+            self._attrs, self._text = [], []
+            self._active_container = None
+        if tag in self._CONTAINERS:
+            # HTML is often imperfect; close the most recent matching container.
+            for i in range(len(self._containers) - 1, -1, -1):
+                if self._containers[i]["tag"] == tag:
+                    container = self._containers.pop(i)
+                    context = " ".join(" ".join(container["text"]).split())
+                    for link in container["links"]:
+                        link["context"] = context
+                    break
+
 
 
 def extract_pdf_links(html: str, base_url: str) -> list[dict]:
@@ -112,14 +142,18 @@ def extract_pdf_links(html: str, base_url: str) -> list[dict]:
     except Exception:  # noqa: BLE001 - malformed HTML must not abort a run
         pass
     out, seen = [], set()
-    for href, text in p.links:
+    for item in p.links:
+        href = item["href"]
         if not href or href.startswith(("#", "mailto:", "tel:", "javascript:")):
             continue
         url = urldefrag(urljoin(base_url, href.strip()))[0]
         if not urlparse(url).path.lower().endswith(".pdf") or not is_allowed_url(url) or url in seen:
             continue
         seen.add(url)
-        out.append({"url": url[:1000], "text": text})
+        # Anchor labels can simply say "PDF" while the official allotment title is
+        # printed beside it in the same table cell/list item. Preserve that context.
+        text = " ".join(dict.fromkeys(x for x in (item["label"], item["context"]) if x))
+        out.append({"url": url[:1000], "text": text[:500]})
     return out
 
 
