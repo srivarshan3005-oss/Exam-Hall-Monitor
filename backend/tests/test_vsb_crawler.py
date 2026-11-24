@@ -207,3 +207,13 @@ def test_candidate_merge_prefers_official_html_allotment_label():
     assert result.listing_url == OFFICIAL
     assert result.text == "HALL ALLOTMENT - FN (24.11.2026)"
     assert vs.classify(result.url, result.text)["doc_kind"] == "hall_allotment"
+
+
+def test_pdf_link_uses_official_table_cell_context_when_anchor_says_only_pdf():
+    html = f'<table><tr><td>HALL ALLOTMENT - FN (24.11.2026) <a href="{BASE}2026/11/24.11.26-FN-HALL-SEAT.pdf">PDF</a></td></tr></table>'
+    link = vs.extract_pdf_links(html, OFFICIAL)[0]
+    assert "HALL ALLOTMENT - FN (24.11.2026)" in link["text"]
+    meta = vs.classify(link["url"], link["text"])
+    assert meta["doc_kind"] == "hall_allotment"
+    assert meta["exam_date"] == date(2026, 11, 24)
+    assert meta["session"] == "FN"
