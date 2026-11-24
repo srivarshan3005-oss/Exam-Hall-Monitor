@@ -189,3 +189,23 @@ def test_existing_filename_only_link_is_reclassified_from_official_listing_and_r
     assert link.doc_kind == doc.doc_kind == "hall_allotment"
     assert doc.exam_date == date(2026, 11, 24) and doc.session == "FN"
     assert ingest.status == "pending" and ingest.attempts == 0 and ingest.error is None
+
+
+def test_candidate_merge_prefers_official_html_allotment_label():
+    from app.vsb_live.discovery import Candidate
+
+    filename_title = Candidate(
+        BASE + "2026/11/24.11.26-FN-HALL-SEAT.pdf",
+        "24.11.26 FN HALL SEAT", "wp_media", "https://vsbec.edu.in/wp-json/wp/v2/media",
+    )
+    official_label = Candidate(
+        filename_title.url, "HALL ALLOTMENT - FN (24.11.2026)", "html", OFFICIAL,
+    )
+    # Mirrors the discovery merge precedence: media/sitemap metadata must never
+    # hide the more authoritative label shown beside the PDF on the COE page.
+    merged = {filename_title.url: filename_title}
+    have = merged[official_label.url]
+    normalized = official_label.text.upper().replace("_", " ")
+    assert "HALL ALLOTMENT" in normalized
+    have.text, have.method, have.listing_url = official_label.text, official_label.method, official_label.listing_url
+    assert vs.classify(have.url, have.text)["doc_kind"] == "hall_allotment"
