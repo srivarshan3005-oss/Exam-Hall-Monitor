@@ -57,7 +57,7 @@ def main() -> int:
     output = os.environ.get("GITHUB_OUTPUT")
     if output:
         with open(output, "a", encoding="utf-8") as stream:
-            stream.write(f"ready={'true' if ready else 'false'}\\n")
+            stream.write(f"ready={'true' if ready else 'false'}\n")
     return 0
 
 
